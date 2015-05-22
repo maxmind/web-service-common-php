@@ -1,5 +1,5 @@
 {
-  "name": "maxmind/web-service-common",
+  "name": "maxmind-ws/web-service-common",
   "description": "Internal MaxMind Web Service API",
   "minimum-stability": "stable",
   "homepage": "https://github.com/maxmind/mm-web-service-api-php",

@@ -176,8 +176,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $userId = 10,
         $licenseKey = '0123456789',
         $options = array()
-    )
-    {
+    ) {
         $stub = $this->getMockForAbstractClass(
             'MaxMind\\WebService\\Http\\Request'
         );
@@ -212,7 +211,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         if (isset($options['caBundle'])) {
             $caBundle = $options['caBundle'];
         } else {
-            $file = (new \ReflectionClass('MaxMind\\WebService\\Client'))->getFileName();
+            $reflectionClass = new \ReflectionClass('MaxMind\\WebService\\Client');
+            $file = $reflectionClass->getFileName();
             $caBundle = dirname($file) . '/cacert.pem';
         }
 

@@ -202,8 +202,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'Accept: application/json',
         );
 
+        $curlVersion = curl_version();
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . PHP_VERSION
-            .  ' curl/' . curl_version()['version'];
+            .  ' curl/' . $curlVersion['version'];
         if (isset($options['userAgent'])) {
             $userAgent = $options['userAgent'] . ' ' . $userAgent;
         }

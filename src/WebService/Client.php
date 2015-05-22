@@ -130,11 +130,13 @@ class Client
 
     private function userAgent()
     {
+        $curlVersion = curl_version();
         return $this->userAgentPrefix . 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . PHP_VERSION .
-           ' curl/' . curl_version()['version'];
+           ' curl/' . $curlVersion['version'];
     }
 
-    private function createRequest($path, $headers = array()) {
+    private function createRequest($path, $headers = array())
+    {
         array_push(
             $headers,
             'Authorization: Basic '

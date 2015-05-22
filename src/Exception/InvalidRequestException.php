@@ -30,8 +30,8 @@ class InvalidRequestException extends HttpException
         parent::__construct($message, $httpStatus, $uri, $previous);
     }
 
-    public function getErrorCode() {
+    public function getErrorCode()
+    {
         return $this->error;
     }
-
 }

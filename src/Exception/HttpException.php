@@ -28,11 +28,13 @@ class HttpException extends WebServiceException
         parent::__construct($message, $httpStatus, $previous);
     }
 
-    public function getUri() {
+    public function getUri()
+    {
         return $this->uri;
     }
 
-    public function getStatusCode() {
+    public function getStatusCode()
+    {
         return $this->getCode();
     }
 }

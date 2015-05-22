@@ -25,5 +25,4 @@ interface Request
      * @return mixed
      */
     public function get();
-
 }

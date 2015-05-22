@@ -34,12 +34,16 @@ class CurlRequest implements Request
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
 
-        $body = curl_exec($curl);
-        $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
-        curl_close($curl);
+        return $this->execute(curl);
+    }
 
-        return array($statusCode, $contentType, $body);
+    public function get()
+    {
+        $curl = $this->createCurl();
+
+        curl_setopt($curl, CURLOPT_HTTPGET, true);
+
+        return $this->execute($curl);
     }
 
     /**
@@ -64,5 +68,15 @@ class CurlRequest implements Request
 
         curl_setopt_array($curl, $opts);
         return $curl;
+    }
+
+    private function execute($curl)
+    {
+        $body = curl_exec($curl);
+        $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
+        curl_close($curl);
+
+        return array($statusCode, $contentType, $body);
     }
 }

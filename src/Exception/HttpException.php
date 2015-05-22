@@ -10,7 +10,7 @@ class HttpException extends WebServiceException
     /**
      * The URI queried
      */
-    public $uri;
+    private $uri;
 
     /**
      * @param string $message A message describing the error.
@@ -26,5 +26,13 @@ class HttpException extends WebServiceException
     ) {
         $this->uri = $uri;
         parent::__construct($message, $httpStatus, $previous);
+    }
+
+    public function getUri() {
+        return $this->uri;
+    }
+
+    public function getStatusCode() {
+        return $this->getCode();
     }
 }

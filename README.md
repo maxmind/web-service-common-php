@@ -1,4 +1,4 @@
-# MaxMind Web Service API
+# MaxMind Web Service Common #
 
 This is _not_ intended for direct use by third parties. Rather, it is for
 shared code between MaxMind's various web service APIs.

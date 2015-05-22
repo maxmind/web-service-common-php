@@ -10,7 +10,7 @@ class InvalidRequestException extends HttpException
     /**
      * The code returned by the MaxMind web service
      */
-    public $error;
+    private $error;
 
     /**
      * @param string $message The exception message
@@ -29,4 +29,9 @@ class InvalidRequestException extends HttpException
         $this->error = $error;
         parent::__construct($message, $httpStatus, $uri, $previous);
     }
+
+    public function getErrorCode() {
+        return $this->error;
+    }
+
 }

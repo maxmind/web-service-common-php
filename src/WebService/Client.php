@@ -7,6 +7,7 @@ use MaxMind\Exception\HttpException;
 use MaxMind\Exception\InsufficientFundsException;
 use MaxMind\Exception\InvalidInputException;
 use MaxMind\Exception\InvalidRequestException;
+use MaxMind\Exception\IpAddressNotFoundException;
 use MaxMind\Exception\WebServiceException;
 use MaxMind\WebService\Http\RequestFactory;
 
@@ -35,11 +36,11 @@ class Client
      * @param string $licenseKey Your MaxMind license key
      * @param array $options An array of options. Possible keys:
      *
-     * * `host` - the host to use when connecting to the web service.
-     * * `userAgent` - the user agent prefix to use in the request
-     * * `caBundle` - the bundle of CA root certificates to use in the equest
-     * * `connectTimeout` - the connect timeout to use for the request
-     * * `timeout` - the timeout to use for the request
+     * * `host` - The host to use when connecting to the web service.
+     * * `userAgent` - The user agent prefix to use in the request.
+     * * `caBundle` - The bundle of CA root certificates to use in the request.
+     * * `connectTimeout` - The connect timeout to use for the request.
+     * * `timeout` - The timeout to use for the request.
      */
     public function __construct(
         $userId,
@@ -88,8 +89,20 @@ class Client
      */
     public function post($service, $path, $input)
     {
-        list($statusCode, $contentType, $body)
-            = $this->sendRequest($path, $input);
+        $body = json_encode($input);
+        if ($body === false) {
+            throw new InvalidInputException(
+                'Error encoding input as JSON: '
+                . $this->jsonErrorDescription()
+            );
+        }
+
+        $request = $this->createRequest(
+            $path,
+            array('Content-type: application/json')
+        );
+
+        list($statusCode, $contentType, $body) = $request->post($body);
         return $this->handleResponse(
             $statusCode,
             $contentType,
@@ -99,30 +112,37 @@ class Client
         );
     }
 
-    /**
-     * @param string $path the URI path to use
-     * @param array $input the data to be posted as JSON
-     * @return array The decoded content of a successful response
-     * @throws InvalidInputException when the request has missing or invalid
-     * data.
-     */
-    private function sendRequest($path, $input)
+    public function get($service, $path)
     {
-        $body = json_encode($input);
-        if ($body === false) {
-            throw new InvalidInputException(
-                'Error encoding input as JSON: '
-                . $this->jsonErrorDescription()
-            );
-        }
-        $headers = array(
-            'Content-type: application/json',
+        $request = $this->createRequest($path);
+
+        list($statusCode, $contentType, $body) = $request->get();
+
+        return $this->handleResponse(
+            $statusCode,
+            $contentType,
+            $body,
+            $service,
+            $path
+        );
+    }
+
+
+    private function userAgent()
+    {
+        return $this->userAgentPrefix . 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . PHP_VERSION .
+           ' curl/' . curl_version()['version'];
+    }
+
+    private function createRequest($path, $headers = array()) {
+        array_push(
+            $headers,
             'Authorization: Basic '
             . base64_encode($this->userId . ':' . $this->licenseKey),
-            'Accept: application/json',
+            'Accept: application/json'
         );
 
-        $request = $this->httpRequestFactory->request(
+        return $this->httpRequestFactory->request(
             $this->urlFor($path),
             array(
                 'caBundle' => $this->caBundle ?: __DIR__ . '/cacert.pem',
@@ -133,15 +153,6 @@ class Client
             )
         );
 
-        list($statusCode, $contentType, $body) = $request->post($body);
-
-        return array($statusCode, $contentType, $body);
-    }
-
-    private function userAgent()
-    {
-        return $this->userAgentPrefix . 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . PHP_VERSION .
-           ' curl/' . curl_version()['version'];
     }
 
     /**
@@ -286,12 +297,31 @@ class Client
         $path
     ) {
         switch ($code) {
+            case 'IP_ADDRESS_NOT_FOUND':
+            case 'IP_ADDRESS_RESERVED':
+                throw new IpAddressNotFoundException(
+                    $message,
+                    $code,
+                    $statusCode,
+                    $this->urlFor($path)
+                );
             case 'AUTHORIZATION_INVALID':
             case 'LICENSE_KEY_REQUIRED':
             case 'USER_ID_REQUIRED':
-                throw new AuthenticationException($message);
+                throw new AuthenticationException(
+                    $message,
+                    $code,
+                    $statusCode,
+                    $this->urlFor($path)
+                );
+            case 'OUT_OF_QUERIES':
             case 'INSUFFICIENT_FUNDS':
-                throw new InsufficientFundsException($message);
+                throw new InsufficientFundsException(
+                    $message,
+                    $code,
+                    $statusCode,
+                    $this->urlFor($path)
+                );
             default:
                 throw new InvalidRequestException(
                     $message,

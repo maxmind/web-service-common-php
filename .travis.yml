@@ -16,7 +16,7 @@ before_install:
 script:
   - mkdir -p build/logs
   - if [ "5.5" == $TRAVIS_PHP_VERSION ]; then phpcs --standard=PSR2 src/; fi
-  - phpunit
+  - ./vendor/bin/phpunit
 
 notifications:
   email:

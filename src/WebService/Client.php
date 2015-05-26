@@ -37,7 +37,7 @@ class Client
      * @param array $options An array of options. Possible keys:
      *
      * * `host` - The host to use when connecting to the web service.
-     * * `userAgent` - The user agent prefix to use in the request.
+     * * `userAgent` - The prefix of the User-Agent to use in the request.
      * * `caBundle` - The bundle of CA root certificates to use in the request.
      * * `connectTimeout` - The connect timeout to use for the request.
      * * `timeout` - The timeout to use for the request.
@@ -99,7 +99,7 @@ class Client
 
         $request = $this->createRequest(
             $path,
-            array('Content-type: application/json')
+            array('Content-Type: application/json')
         );
 
         list($statusCode, $contentType, $body) = $request->post($body);
@@ -159,7 +159,7 @@ class Client
 
     /**
      * @param integer $statusCode the HTTP status code of the response
-     * @param string $contentType the content-type of the response
+     * @param string $contentType the Content-Type of the response
      * @param string $body the response body
      * @param string $service the name of the service
      * @param string $path the path used in the request

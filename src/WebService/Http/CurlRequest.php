@@ -2,6 +2,8 @@
 
 namespace MaxMind\WebService\Http;
 
+use MaxMind\Exception\HttpException;
+
 /**
  * This class is for internal use only. Semantic versioning does not not apply.
  * @package MaxMind\WebService\Http
@@ -72,6 +74,15 @@ class CurlRequest implements Request
     private function execute($curl)
     {
         $body = curl_exec($curl);
+        if ($errno = curl_errno($curl)) {
+            $error_message = curl_strerror($errno);
+            throw new HttpException(
+                "cURL error ({$errno}): {$error_message}",
+                0,
+                $this->url
+            );
+        }
+
         $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
         curl_close($curl);

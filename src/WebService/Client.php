@@ -60,9 +60,10 @@ class Client
         if (isset($options['userAgent'])) {
             $this->userAgentPrefix = $options['userAgent'] . ' ';
         }
-        if (isset($options['caBundle'])) {
-            $this->caBundle = $options['caBundle'];
-        }
+
+        $this->caBundle = isset($options['caBundle']) ?
+            $this->caBundle = $options['caBundle'] : $this->getCaBundle();
+
         if (isset($options['connectTimeout'])) {
             $this->connectTimeout = $options['connectTimeout'];
         }
@@ -147,7 +148,7 @@ class Client
         return $this->httpRequestFactory->request(
             $this->urlFor($path),
             array(
-                'caBundle' => $this->caBundle ?: __DIR__ . '/cacert.pem',
+                'caBundle' => $this->caBundle,
                 'headers' => $headers,
                 'userAgent' => $this->userAgent(),
                 'connectTimeout' => $this->connectTimeout,
@@ -391,5 +392,36 @@ class Client
         }
 
         return $decodedContent;
+    }
+
+    private function getCaBundle()
+    {
+        $cert = __DIR__ . '/cacert.pem';
+
+        // Check if we are inside a phar. If so, we need to copy the cert to a
+        // temp file so that curl can see it.
+        if (substr($cert, 0, 7) == 'phar://') {
+             $newCert =  tempnam(sys_get_temp_dir(), 'geoip2-');
+            if (!copy($cert, $newCert)) {
+                throw new \RuntimeException(
+                    "Could not copy $cert to $newCert: "
+                    . var_export(error_get_last(), true)
+                );
+            }
+
+            // We use a shutdown function rather than the destructor as the
+            // destructor isn't called on a fatal error such as an uncaught
+            // exception.
+            register_shutdown_function(
+                function () use ($newCert) {
+                    unlink($newCert);
+                }
+            );
+            $cert = $newCert;
+        }
+        if (!file_exists($cert)) {
+            throw new \RuntimeException("CA cert does not exist at $cert");
+        }
+        return $cert;
     }
 }

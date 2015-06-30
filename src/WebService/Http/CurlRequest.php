@@ -75,7 +75,8 @@ class CurlRequest implements Request
     {
         $body = curl_exec($curl);
         if ($errno = curl_errno($curl)) {
-            $error_message = curl_strerror($errno);
+            $error_message = curl_error($curl);
+
             throw new HttpException(
                 "cURL error ({$errno}): {$error_message}",
                 0,

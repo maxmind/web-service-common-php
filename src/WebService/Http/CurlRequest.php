@@ -64,8 +64,10 @@ class CurlRequest implements Request
         $opts[CURLOPT_HTTPHEADER] = $this->options['headers'];
         $opts[CURLOPT_USERAGENT] = $this->options['userAgent'];
 
-        $opts[CURLOPT_CONNECTTIMEOUT] = $this->options['connectTimeout'];
-        $opts[CURLOPT_TIMEOUT] = $this->options['timeout'];
+        $opts[CURLOPT_CONNECTTIMEOUT] = ceil($this->options['connectTimeout']);
+        $opts[CURLOPT_CONNECTTIMEOUT_MS] = ceil($this->options['connectTimeout'] * 1000);
+        $opts[CURLOPT_TIMEOUT] = ceil($this->options['timeout']);
+        $opts[CURLOPT_TIMEOUT_MS] = ceil($this->options['timeout'] * 1000);
 
         curl_setopt_array($curl, $opts);
         return $curl;

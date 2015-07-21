@@ -23,7 +23,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
+     * @expectedExceptionMessage cURL error (6):
      */
     public function testGet()
     {
@@ -38,7 +38,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
+     * @expectedExceptionMessage cURL error (6):
      */
     public function testPost()
     {

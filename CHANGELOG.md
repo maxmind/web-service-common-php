@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.0.4 (2015-07-21)
+------------------
+
+* Added extremely basic tests for the curl calls.
+* Fixed broken POSTs.
+
 0.0.3 (2015-06-30)
 ------------------
 

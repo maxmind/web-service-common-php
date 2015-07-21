@@ -35,7 +35,7 @@ class CurlRequest implements Request
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
 
-        return $this->execute(curl);
+        return $this->execute($curl);
     }
 
     public function get()

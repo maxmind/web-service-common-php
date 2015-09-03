@@ -401,7 +401,13 @@ class Client
         // Check if we are inside a phar. If so, we need to copy the cert to a
         // temp file so that curl can see it.
         if (substr($cert, 0, 7) == 'phar://') {
-             $newCert =  tempnam(sys_get_temp_dir(), 'geoip2-');
+            $tempDir = sys_get_temp_dir();
+            $newCert = tempnam($tempDir, 'geoip2-');
+            if ($newCart === false) {
+                throw new \RuntimeException(
+                    "Unable to create temporary file in $tempDir"
+                );
+            }
             if (!copy($cert, $newCert)) {
                 throw new \RuntimeException(
                     "Could not copy $cert to $newCert: "

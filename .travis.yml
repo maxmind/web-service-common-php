@@ -1,26 +1,27 @@
+---
+sudo: false
 language: php
-
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
+  - '5.3'
+  - '5.4'
+  - '5.5'
+  - '5.6'
   - hhvm
-
 before_install:
   - composer self-update
   - composer install --dev -n --prefer-source
-  - if [ "5.5" == $TRAVIS_PHP_VERSION ]; then pyrus install pear/PHP_CodeSniffer; fi
+  - 'if [ "5.5" == $TRAVIS_PHP_VERSION ]; then pyrus install pear/PHP_CodeSniffer; fi'
   - phpenv rehash
-
 script:
   - mkdir -p build/logs
-  - if [ "5.5" == $TRAVIS_PHP_VERSION ]; then phpcs --standard=PSR2 src/; fi
+  - 'if [ "5.5" == $TRAVIS_PHP_VERSION ]; then phpcs --standard=PSR2 src/; fi'
   - ./vendor/bin/phpunit
-
 notifications:
   email:
+    on_failure: always
+    on_success: change
     recipients:
       - dev-ci@maxmind.com
-    on_success: change
-    on_failure: always
+  slack:
+    rooms:
+      secure: "UW1TFSQDZGymtfapzAZcCyl67UOdeZKHfQ6L2XD8vK8+CPEAfJ1vXlaweoKTiGyvkfYGRa/nFBudvK+XQ81l1mQ1LIo0VBSGYpd/XMJ8H1fMn3lQLGni1INKn7tViKXpo3mzxyoTwf1fQoqCbBtzVcH/6tpgtqj1HCsvzgs8jMIV6EkRTXDTdY2y0o6XTkNwqGhByikrtj/BKh55ifAKFQYp4/VLGQC8+cEugefWQaaIWiuF4fy08ta94w/eIsg1i2+tVWTbH1G60ZHRbjKb0ERAbjOFRSC3qHmie2fnklARbNp9yo/O+GCSkJxF63cwHTN7xnDGx7VLNxOma7gEHBZx0zfO+2PAjnqwImfopdWcuPpB4oKvZXWEoaNdKQPRkeMyWR29uy0xtd49IpuuJwJgyrD+rWlRhJTWbM30FSuCBN2To3Vj17r5cL03d/iJXrfpECdEYhybTa2dzXvs2jHaFuwONSi5Mn8z6x2++v1JYwO5ZtAShpEBlWJXze9HGfPGYzF/HcD5gF8Cw0SuQKPKWQU3IWS0MxlLo9nJ4K0OIJKh2Yg5xftgw6YLDhuc4QuBq0OJLRVWl2p97yRxYLRBubbLFZ53GCUe7yzUoSzs/7CtswVKAmeg8USJZdfRD5mkt/1g9BxCW5ivrDnm90h58z8IgM5WguJ77mR+HZs=\n"

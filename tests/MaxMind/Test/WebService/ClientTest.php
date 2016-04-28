@@ -87,6 +87,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException MaxMind\Exception\PermissionRequiredException
+     * @expectedExceptionMessage Permission required
+     */
+    public function testPermissionRequired()
+    {
+        $this->withResponse(
+            '403',
+            'application/json',
+            '{"code":"PERMISSION_REQUIRED","error":"Permission required"}'
+        );
+    }
+
+    /**
      * @expectedException MaxMind\Exception\InvalidRequestException
      * @expectedExceptionMessage IP invalid
      */

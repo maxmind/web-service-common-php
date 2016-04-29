@@ -8,6 +8,7 @@ use MaxMind\Exception\InsufficientFundsException;
 use MaxMind\Exception\InvalidInputException;
 use MaxMind\Exception\InvalidRequestException;
 use MaxMind\Exception\IpAddressNotFoundException;
+use MaxMind\Exception\PermissionRequiredException;
 use MaxMind\Exception\WebServiceException;
 use MaxMind\WebService\Http\RequestFactory;
 
@@ -320,6 +321,13 @@ class Client
             case 'OUT_OF_QUERIES':
             case 'INSUFFICIENT_FUNDS':
                 throw new InsufficientFundsException(
+                    $message,
+                    $code,
+                    $statusCode,
+                    $this->urlFor($path)
+                );
+            case 'PERMISSION_REQUIRED':
+                throw new PermissionRequiredException(
                     $message,
                     $code,
                     $statusCode,

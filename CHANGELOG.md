@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.1.0 (2016-XX-XX)
+0.1.0 (2016-05-23)
 -----------------
 
 * A `PERMISSION_REQUIRED` error will now throw a `PermissionRequiredException`

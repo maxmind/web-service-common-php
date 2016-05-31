@@ -312,6 +312,7 @@ class Client
             case 'AUTHORIZATION_INVALID':
             case 'LICENSE_KEY_REQUIRED':
             case 'USER_ID_REQUIRED':
+            case 'USER_ID_UNKNOWN':
                 throw new AuthenticationException(
                     $message,
                     $code,

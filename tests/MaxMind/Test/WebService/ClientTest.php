@@ -82,7 +82,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         return array(
             array('AUTHORIZATION_INVALID'),
             array('LICENSE_KEY_REQUIRED'),
-            array('USER_ID_REQUIRED')
+            array('USER_ID_REQUIRED'),
+            array('USER_ID_UNKNOWN'),
         );
     }
 

@@ -23,14 +23,15 @@ class Client
 {
     const VERSION = '0.0.1';
 
-    private $userId;
-    private $licenseKey;
-    private $userAgentPrefix;
+    private $caBundle;
+    private $connectTimeout;
     private $host = 'api.maxmind.com';
     private $httpRequestFactory;
+    private $licenseKey;
+    private $proxy;
     private $timeout;
-    private $connectTimeout;
-    private $caBundle;
+    private $userAgentPrefix;
+    private $userId;
 
     /**
      * @param int $userId Your MaxMind user ID
@@ -42,6 +43,8 @@ class Client
      * * `caBundle` - The bundle of CA root certificates to use in the request.
      * * `connectTimeout` - The connect timeout to use for the request.
      * * `timeout` - The timeout to use for the request.
+     * * `proxy` - The HTTP proxy to use. May include a schema, port,
+     *   username, and password, e.g., `http://username:password@127.0.0.1:10`.
      */
     public function __construct(
         $userId,
@@ -70,6 +73,10 @@ class Client
         }
         if (isset($options['timeout'])) {
             $this->timeout = $options['timeout'];
+        }
+
+        if (isset($options['proxy'])) {
+            $this->proxy = $options['proxy'];
         }
     }
 
@@ -150,10 +157,11 @@ class Client
             $this->urlFor($path),
             array(
                 'caBundle' => $this->caBundle,
-                'headers' => $headers,
-                'userAgent' => $this->userAgent(),
                 'connectTimeout' => $this->connectTimeout,
+                'headers' => $headers,
+                'proxy' => $this->proxy,
                 'timeout' => $this->timeout,
+                'userAgent' => $this->userAgent(),
             )
         );
 

@@ -21,7 +21,7 @@ use MaxMind\WebService\Http\RequestFactory;
  */
 class Client
 {
-    const VERSION = '0.0.1';
+    const VERSION = '0.2.0';
 
     private $caBundle;
     private $connectTimeout;

@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.1.1 (2016-XX-XX)
+0.2.0 (2016-06-10)
 ------------------
 
 * Added handling of additional error codes that the web service may return.

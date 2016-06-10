@@ -15,10 +15,11 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
 
     private $options = array(
         'caBundle'=> null,
-        'headers' => array(),
-        'userAgent' => 'Test',
         'connectTimeout' => 0,
+        'headers' => array(),
+        'proxy' => null,
         'timeout' => 0,
+        'userAgent' => 'Test',
     );
 
     /**

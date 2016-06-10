@@ -4,8 +4,10 @@ CHANGELOG
 0.1.1 (2016-XX-XX)
 ------------------
 
+* Added handling of additional error codes that the web service may return.
 * A `USER_ID_UNKNOWN` error will now throw a
   `MaxMind\Exception\AuthenticationException`.
+* Added support for `proxy` option. Closes #6.
 
 0.1.0 (2016-05-23)
 ------------------

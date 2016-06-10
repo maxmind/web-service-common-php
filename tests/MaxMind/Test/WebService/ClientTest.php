@@ -33,10 +33,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             'abcdefghij',
             array(
                 'caBundle' => '/path/to/ca.pem',
-                'timeout' => 100,
                 'connectTimeout' => 15,
+                'proxy' => 'http://bob:pass@127.0.0.1:10',
+                'timeout' => 100,
                 'userAgent' => 'TestClient/1',
-
             )
         );
     }
@@ -243,6 +243,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                         'timeout' => isset($options['timeout'])
                             ? $options['timeout'] : null,
                         'caBundle' => $caBundle,
+                        'proxy' => isset($options['proxy'])
+                            ?  $options['proxy'] : null,
                     )
                 )
             )->willReturn($stub);

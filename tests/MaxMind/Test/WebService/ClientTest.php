@@ -2,6 +2,7 @@
 
 namespace MaxMind\Test\WebService;
 
+use Composer\CaBundle\CaBundle;
 use MaxMind\WebService\Client;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
@@ -222,13 +223,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             $userAgent = $options['userAgent'] . ' ' . $userAgent;
         }
 
-        if (isset($options['caBundle'])) {
-            $caBundle = $options['caBundle'];
-        } else {
-            $reflectionClass = new \ReflectionClass('MaxMind\\WebService\\Client');
-            $file = $reflectionClass->getFileName();
-            $caBundle = dirname($file) . '/cacert.pem';
-        }
+        $caBundle = isset($options['caBundle']) ? $options['caBundle']
+            : CaBundle::getSystemCaRootBundlePath();
 
         $factory->expects($this->once())
             ->method('request')

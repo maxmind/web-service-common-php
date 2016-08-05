@@ -2,6 +2,7 @@
 
 namespace MaxMind\WebService;
 
+use Composer\CaBundle\CaBundle;
 use MaxMind\Exception\AuthenticationException;
 use MaxMind\Exception\HttpException;
 use MaxMind\Exception\InsufficientFundsException;
@@ -164,7 +165,6 @@ class Client
                 'userAgent' => $this->userAgent(),
             )
         );
-
     }
 
     /**
@@ -413,10 +413,10 @@ class Client
 
     private function getCaBundle()
     {
-        $cert = __DIR__ . '/cacert.pem';
+        $cert = CaBundle::getSystemCaRootBundlePath();
 
-        // Check if we are inside a phar. If so, we need to copy the cert to a
-        // temp file so that curl can see it.
+        // Check if the cert is inside a phar. If so, we need to copy the cert
+        // to a temp file so that curl can see it.
         if (substr($cert, 0, 7) == 'phar://') {
             $tempDir = sys_get_temp_dir();
             $newCert = tempnam($tempDir, 'geoip2-');

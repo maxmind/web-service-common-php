@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+0.3.0 (2016-08-XX)
+------------------
+
+* This package now uses `composer/ca-bundle` by default rather than a CA
+  bundle distributed with this package. `composer/ca-bundle` will first try
+  to use the system CA bundle and will fall back to the Mozilla CA bundle
+  when no system bundle is available. You may still specify your own bundle
+  using the `caBundle` option.
+
 0.2.1 (2016-06-13)
 ------------------
 

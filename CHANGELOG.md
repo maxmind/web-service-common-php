@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.3.0 (2016-08-XX)
+0.3.0 (2016-08-09)
 ------------------
 
 * This package now uses `composer/ca-bundle` by default rather than a CA

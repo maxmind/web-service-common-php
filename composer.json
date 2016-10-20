@@ -23,7 +23,8 @@
   },
   "autoload": {
     "psr-4": {
-      "MaxMind\\": "src"
+      "MaxMind\\Exception\\": "src/Exception",
+      "MaxMind\\WebService\\": "src/WebService"
     }
   }
 }

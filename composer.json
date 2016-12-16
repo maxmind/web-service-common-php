@@ -2,7 +2,7 @@
   "name": "maxmind/web-service-common",
   "description": "Internal MaxMind Web Service API",
   "minimum-stability": "stable",
-  "homepage": "https://github.com/maxmind/mm-web-service-api-php",
+  "homepage": "https://github.com/maxmind/web-service-common-php",
   "type": "library",
   "license": "Apache-2.0",
   "authors": [

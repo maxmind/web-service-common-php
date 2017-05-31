@@ -5,8 +5,9 @@ shared code between MaxMind's various web service APIs.
 
 ## Requirements  ##
 
-This code requires PHP 5.3 or greater. Older versions of PHP are not
-supported. This library works and is tested with HHVM.
+This code is tested on PHP 5.4 and greater. PHP 5.3 may work, but older
+versions of PHP are not supported. This library works and is tested with
+HHVM.
 
 There are several other dependencies as defined in the `composer.json` file.
 

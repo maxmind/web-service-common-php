@@ -5,9 +5,8 @@ shared code between MaxMind's various web service APIs.
 
 ## Requirements  ##
 
-This code is tested on PHP 5.4 and greater. PHP 5.3 may work, but older
-versions of PHP are not supported. This library works and is tested with
-HHVM.
+The library requires PHP 5.4 or greater. This library works and is tested
+with HHVM.
 
 There are several other dependencies as defined in the `composer.json` file.
 
@@ -22,6 +21,6 @@ This API uses [Semantic Versioning](http://semver.org/).
 
 ## Copyright and License ##
 
-This software is Copyright (c) 2015 by MaxMind, Inc.
+This software is Copyright (c) 2015-2017 by MaxMind, Inc.
 
 This is free software, licensed under the Apache License, Version 2.0.

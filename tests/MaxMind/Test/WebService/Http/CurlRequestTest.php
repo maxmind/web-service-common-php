@@ -10,20 +10,22 @@ use MaxMind\WebService\Http\CurlRequest;
 // server, which is very painful to do in PHP 5.3. For 5.4+, there are
 // various solutions. When we increase our required PHP version, we should
 // look into those.
+/**
+ * @coversNothing
+ */
 class CurlRequestTest extends \PHPUnit_Framework_TestCase
 {
-
-    private $options = array(
-        'caBundle'=> null,
+    private $options = [
+        'caBundle' => null,
         'connectTimeout' => 0,
-        'headers' => array(),
+        'headers' => [],
         'proxy' => null,
         'timeout' => 0,
         'userAgent' => 'Test',
-    );
+    ];
 
     /**
-     * @expectedException MaxMind\Exception\HttpException
+     * @expectedException \MaxMind\Exception\HttpException
      * @expectedExceptionMessage cURL error (6):
      */
     public function testGet()
@@ -36,9 +38,8 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
         $cr->get();
     }
 
-
     /**
-     * @expectedException MaxMind\Exception\HttpException
+     * @expectedException \MaxMind\Exception\HttpException
      * @expectedExceptionMessage cURL error (6):
      */
     public function testPost()

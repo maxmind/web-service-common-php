@@ -1,6 +1,7 @@
 _site
 .gh-pages
 .idea
+.php_cs.cache
 apigen.phar
 box.phar
 build

@@ -6,7 +6,7 @@ use MaxMind\Exception\HttpException;
 
 /**
  * This class is for internal use only. Semantic versioning does not not apply.
- * @package MaxMind\WebService\Http
+ *
  * @internal
  */
 class CurlRequest implements Request
@@ -26,6 +26,7 @@ class CurlRequest implements Request
 
     /**
      * @param $body
+     *
      * @return array
      */
     public function post($body)
@@ -62,7 +63,6 @@ class CurlRequest implements Request
         $opts[CURLOPT_SSL_VERIFYPEER] = true;
         $opts[CURLOPT_RETURNTRANSFER] = true;
 
-
         $opts[CURLOPT_HTTPHEADER] = $this->options['headers'];
         $opts[CURLOPT_USERAGENT] = $this->options['userAgent'];
         $opts[CURLOPT_PROXY] = $this->options['proxy'];
@@ -84,6 +84,7 @@ class CurlRequest implements Request
         }
 
         curl_setopt_array($curl, $opts);
+
         return $curl;
     }
 
@@ -104,6 +105,6 @@ class CurlRequest implements Request
         $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
         curl_close($curl);
 
-        return array($statusCode, $contentType, $body);
+        return [$statusCode, $contentType, $body];
     }
 }

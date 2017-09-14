@@ -1,7 +1,7 @@
-# MaxMind Web Service Common #
+# Common Code for MaxMind Web Service Clients #
 
 This is _not_ intended for direct use by third parties. Rather, it is for
-shared code between MaxMind's various web service APIs.
+shared code between MaxMind's various web service client APIs.
 
 ## Requirements  ##
 

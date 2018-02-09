@@ -11,6 +11,9 @@ php:
   - '7.2'
   - hhvm
   - nightly
+matrix:
+  allow_failures:
+    - php: nightly
 before_install:
   - composer self-update
   - composer install --dev -n --prefer-source

@@ -85,6 +85,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function invalidAuthCodes()
     {
         return [
+            ['ACCOUNT_ID_REQUIRED'],
+            ['ACCOUNT_ID_UNKNOWN'],
             ['AUTHORIZATION_INVALID'],
             ['LICENSE_KEY_REQUIRED'],
             ['USER_ID_REQUIRED'],
@@ -192,7 +194,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $statusCode,
         $contentType,
         $responseBody,
-        $userId = 10,
+        $accountId = 10,
         $licenseKey = '0123456789',
         $options = []
     ) {
@@ -216,7 +218,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $headers = [
             'Content-Type: application/json',
             'Authorization: Basic '
-            . base64_encode($userId . ':' . $licenseKey),
+            . base64_encode($accountId . ':' . $licenseKey),
             'Accept: application/json',
         ];
 
@@ -251,7 +253,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $options['httpRequestFactory'] = $factory;
         $client = new Client(
-            $userId,
+            $accountId,
             $licenseKey,
             $options
         );

@@ -1,6 +1,8 @@
 CHANGELOG
 =========
 
+* Refer to account IDs using the terminology "account" rather than "user".
+
 0.4.0 (2017-07-10)
 ------------------
 

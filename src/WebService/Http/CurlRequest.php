@@ -70,14 +70,14 @@ class CurlRequest implements Request
         // The defined()s are here as the *_MS opts are not available on older
         // cURL versions
         $connectTimeout = $this->options['connectTimeout'];
-        if (defined('CURLOPT_CONNECTTIMEOUT_MS')) {
+        if (\defined('CURLOPT_CONNECTTIMEOUT_MS')) {
             $opts[CURLOPT_CONNECTTIMEOUT_MS] = ceil($connectTimeout * 1000);
         } else {
             $opts[CURLOPT_CONNECTTIMEOUT] = ceil($connectTimeout);
         }
 
         $timeout = $this->options['timeout'];
-        if (defined('CURLOPT_TIMEOUT_MS')) {
+        if (\defined('CURLOPT_TIMEOUT_MS')) {
             $opts[CURLOPT_TIMEOUT_MS] = ceil($timeout * 1000);
         } else {
             $opts[CURLOPT_TIMEOUT] = ceil($timeout);

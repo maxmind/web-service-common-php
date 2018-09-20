@@ -256,7 +256,7 @@ class Client
         $service,
         $path
     ) {
-        if (strlen($body) === 0) {
+        if (\strlen($body) === 0) {
             throw new HttpException(
                 "Received a $statusCode error for $service with no body",
                 $statusCode,
@@ -406,7 +406,7 @@ class Client
      */
     private function handleSuccess($body, $service)
     {
-        if (strlen($body) === 0) {
+        if (\strlen($body) === 0) {
             throw new WebServiceException(
                 "Received a 200 response for $service but did not " .
                 'receive a HTTP body.'

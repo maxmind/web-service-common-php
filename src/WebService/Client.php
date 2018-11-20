@@ -396,13 +396,13 @@ class Client
     }
 
     /**
-     * @param string $body    the successful request body
+     * @param string $body    the successful response body
      * @param string $service the service name
      *
-     * @throws WebServiceException if the request body cannot be decoded as
+     * @throws WebServiceException if the response body cannot be decoded as
      *                             JSON
      *
-     * @return array the decoded request body
+     * @return array the decoded response body
      */
     private function handleSuccess($body, $service)
     {

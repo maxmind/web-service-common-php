@@ -5,8 +5,7 @@ shared code between MaxMind's various web service client APIs.
 
 ## Requirements  ##
 
-The library requires PHP 5.4 or greater. This library works and is tested
-with HHVM.
+The library requires PHP 5.4 or greater.
 
 There are several other dependencies as defined in the `composer.json` file.
 

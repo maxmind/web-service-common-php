@@ -34,6 +34,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
             'invalid host',
             $this->options
         );
+        $cr->setCurlHandle(curl_init());
 
         $cr->get();
     }
@@ -48,6 +49,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
             'invalid host',
             $this->options
         );
+        $cr->setCurlHandle(curl_init());
 
         $cr->post('POST BODY');
     }

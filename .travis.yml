@@ -20,8 +20,7 @@ cache:
   directories:
     - $HOME/.composer/cache
 before_install:
-  - composer self-update
-  - composer install --dev -n --prefer-source
+  - composer install --no-interaction
   - phpenv rehash
   - "if [[ $RUN_SNYK && $SNYK_TOKEN ]]; then sudo apt-get install -y nodejs; npm install -g snyk; fi"
 install:

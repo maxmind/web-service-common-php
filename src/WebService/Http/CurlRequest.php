@@ -82,7 +82,7 @@ class CurlRequest implements Request
             $opts[CURLOPT_CAINFO] = $this->options['caBundle'];
         }
 
-        $opts[CURLOPT_ENCODING]       = "";
+        $opts[CURLOPT_ENCODING] = "";
         $opts[CURLOPT_SSL_VERIFYHOST] = 2;
         $opts[CURLOPT_FOLLOWLOCATION] = false;
         $opts[CURLOPT_SSL_VERIFYPEER] = true;
@@ -115,8 +115,10 @@ class CurlRequest implements Request
 
     /**
      * @param resource $curl
-     * @return array
+     *
      * @throws HttpException
+     *
+     * @return array
      */
     private function execute($curl)
     {

@@ -4,11 +4,12 @@ namespace MaxMind\Test\WebService;
 
 use Composer\CaBundle\CaBundle;
 use MaxMind\WebService\Client;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversNothing
  */
-class ClientTest extends \PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     public function test200()
     {
@@ -198,8 +199,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $licenseKey = '0123456789',
         $options = []
     ) {
+        $host = isset($options['host']) ? $options['host'] : 'api.maxmind.com';
+
+        $url = 'https://' . $host . $path;
+
         $stub = $this->getMockForAbstractClass(
-            'MaxMind\\WebService\\Http\\Request'
+            'MaxMind\\WebService\\Http\\Request',
+            [$url, $options]
         );
 
         $stub->expects($this->once())
@@ -210,10 +216,6 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $factory = $this->getMockBuilder(
             'MaxMind\\WebService\\Http\\RequestFactory'
         )->getMock();
-
-        $host = isset($options['host']) ? $options['host'] : 'api.maxmind.com';
-
-        $url = 'https://' . $host . $path;
 
         $headers = [
             'Content-Type: application/json',

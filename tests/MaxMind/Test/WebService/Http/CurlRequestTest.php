@@ -3,6 +3,7 @@
 namespace MaxMind\Test\WebService\Http;
 
 use MaxMind\WebService\Http\CurlRequest;
+use PHPUnit\Framework\TestCase;
 
 // These tests are totally insufficient, but they do test that most of our
 // curl calls are at least syntactically valid and available in each PHP
@@ -13,7 +14,7 @@ use MaxMind\WebService\Http\CurlRequest;
 /**
  * @coversNothing
  */
-class CurlRequestTest extends \PHPUnit_Framework_TestCase
+class CurlRequestTest extends TestCase
 {
     private $options = [
         'caBundle' => null,
@@ -26,7 +27,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6):
+     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
      */
     public function testGet()
     {
@@ -40,7 +41,7 @@ class CurlRequestTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6):
+     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
      */
     public function testPost()
     {

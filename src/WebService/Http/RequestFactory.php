@@ -30,15 +30,16 @@ class RequestFactory
 
     /**
      * @param string $url
-     * @param array $options
+     * @param array  $options
      *
      * @return Request
      */
     public function request($url, $options)
     {
-        $request = new CurlRequest($url, $options);
-        $request->setCurlHandle($this->ch);
+        if (!empty($options['curlHandle'])) {
+            $options['curlHandle'] = $this->ch;
+        }
 
-        return $request;
+        return new CurlRequest($url, $options);
     }
 }

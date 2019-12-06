@@ -11,7 +11,7 @@ interface Request
 {
     /**
      * @param string $url
-     * @param array $options
+     * @param array  $options
      */
     public function __construct($url, $options);
 

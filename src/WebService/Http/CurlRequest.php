@@ -34,6 +34,7 @@ class CurlRequest implements Request
     {
         $this->url = $url;
         $this->options = $options;
+        $this->ch = $options['curlHandle'];
     }
 
     /**

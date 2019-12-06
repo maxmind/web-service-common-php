@@ -16,18 +16,24 @@ use PHPUnit\Framework\TestCase;
  */
 class CurlRequestTest extends TestCase
 {
-    private $options = [
-        'caBundle' => null,
-        'connectTimeout' => 0,
-        'headers' => [],
-        'proxy' => null,
-        'timeout' => 0,
-        'userAgent' => 'Test',
-    ];
+    private $options;
+
+    public function setUp()
+    {
+        $this->options = [
+            'caBundle' => null,
+            'connectTimeout' => 0,
+            'curlHandle' => curl_init(),
+            'headers' => [],
+            'proxy' => null,
+            'timeout' => 0,
+            'userAgent' => 'Test',
+        ];
+    }
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
+     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
      */
     public function testGet()
     {
@@ -35,14 +41,13 @@ class CurlRequestTest extends TestCase
             'invalid host',
             $this->options
         );
-        $cr->setCurlHandle(curl_init());
 
         $cr->get();
     }
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessage cURL error (6): Could not resolve host: invalid host
+     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
      */
     public function testPost()
     {
@@ -50,7 +55,6 @@ class CurlRequestTest extends TestCase
             'invalid host',
             $this->options
         );
-        $cr->setCurlHandle(curl_init());
 
         $cr->post('POST BODY');
     }

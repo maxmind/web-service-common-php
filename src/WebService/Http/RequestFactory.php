@@ -29,8 +29,8 @@ class RequestFactory
     }
 
     /**
-     * @param $url
-     * @param $options
+     * @param string $url
+     * @param array $options
      *
      * @return Request
      */

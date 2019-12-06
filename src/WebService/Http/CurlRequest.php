@@ -37,15 +37,7 @@ class CurlRequest implements Request
     }
 
     /**
-     * @param resource $ch
-     */
-    public function setCurlHandle($ch)
-    {
-        $this->ch = $ch;
-    }
-
-    /**
-     * @param $body
+     * @param string $body
      *
      * @return array
      */

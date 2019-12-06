@@ -40,6 +40,8 @@ class CurlRequest implements Request
     /**
      * @param string $body
      *
+     * @throws HttpException
+     *
      * @return array
      */
     public function post($body)

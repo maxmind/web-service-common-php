@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.6.0
+------------------
+
+* Curl handles are now reused across requests. Pull request by Willem
+  Stuursma-Ruwen. GitHub #24.
+
 0.5.0 (2018-02-12)
 ------------------
 

@@ -432,7 +432,7 @@ class Client
         // On OS X, when the SSL version is "SecureTransport", the system's
         // keychain will be used.
         if ($curlVersion['ssl_version'] === 'SecureTransport') {
-            return;
+            return null;
         }
         $cert = CaBundle::getSystemCaRootBundlePath();
 

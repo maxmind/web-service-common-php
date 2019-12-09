@@ -11,21 +11,36 @@ use MaxMind\Exception\HttpException;
  */
 class CurlRequest implements Request
 {
+    /**
+     * @var resource
+     */
+    private $ch;
+
+    /**
+     * @var string
+     */
     private $url;
+
+    /**
+     * @var array
+     */
     private $options;
 
     /**
-     * @param $url
-     * @param $options
+     * @param string $url
+     * @param array  $options
      */
     public function __construct($url, $options)
     {
         $this->url = $url;
         $this->options = $options;
+        $this->ch = $options['curlHandle'];
     }
 
     /**
-     * @param $body
+     * @param string $body
+     *
+     * @throws HttpException
      *
      * @return array
      */
@@ -53,11 +68,16 @@ class CurlRequest implements Request
      */
     private function createCurl()
     {
-        $curl = curl_init($this->url);
+        curl_reset($this->ch);
+
+        $opts = [];
+        $opts[CURLOPT_URL] = $this->url;
 
         if (!empty($this->options['caBundle'])) {
             $opts[CURLOPT_CAINFO] = $this->options['caBundle'];
         }
+
+        $opts[CURLOPT_ENCODING] = '';
         $opts[CURLOPT_SSL_VERIFYHOST] = 2;
         $opts[CURLOPT_FOLLOWLOCATION] = false;
         $opts[CURLOPT_SSL_VERIFYPEER] = true;
@@ -83,11 +103,18 @@ class CurlRequest implements Request
             $opts[CURLOPT_TIMEOUT] = ceil($timeout);
         }
 
-        curl_setopt_array($curl, $opts);
+        curl_setopt_array($this->ch, $opts);
 
-        return $curl;
+        return $this->ch;
     }
 
+    /**
+     * @param resource $curl
+     *
+     * @throws HttpException
+     *
+     * @return array
+     */
     private function execute($curl)
     {
         $body = curl_exec($curl);
@@ -103,7 +130,6 @@ class CurlRequest implements Request
 
         $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
-        curl_close($curl);
 
         return [$statusCode, $contentType, $body];
     }

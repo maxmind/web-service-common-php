@@ -36,9 +36,7 @@ class RequestFactory
      */
     public function request($url, $options)
     {
-        if (!empty($options['curlHandle'])) {
-            $options['curlHandle'] = $this->ch;
-        }
+        $options['curlHandle'] = $this->ch;
 
         return new CurlRequest($url, $options);
     }

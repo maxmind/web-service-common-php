@@ -1,11 +1,12 @@
 CHANGELOG
 =========
 
-0.6.0
+0.6.0 (2019-12-12)
 ------------------
 
 * Curl handles are now reused across requests. Pull request by Willem
   Stuursma-Ruwen. GitHub #24.
+* PHP 5.6 is now required.
 
 0.5.0 (2018-02-12)
 ------------------

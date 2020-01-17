@@ -33,7 +33,7 @@ class CurlRequestTest extends TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
+     * @expectedExceptionMessageRegExp /^cURL error \(3\).+/
      */
     public function testGet()
     {
@@ -47,7 +47,7 @@ class CurlRequestTest extends TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
+     * @expectedExceptionMessageRegExp /^cURL error \(3\).+/
      */
     public function testPost()
     {

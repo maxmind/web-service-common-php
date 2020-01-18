@@ -30,6 +30,7 @@ class RequestFactory
         if (empty($this->ch)) {
             $this->ch = curl_init();
         }
+
         return $this->ch;
     }
 

@@ -33,12 +33,12 @@ class CurlRequestTest extends TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
+     * @expectedExceptionMessageRegExp /^cURL error.*invalid.host/
      */
     public function testGet()
     {
         $cr = new CurlRequest(
-            'invalid host',
+            'invalid.host',
             $this->options
         );
 
@@ -47,12 +47,12 @@ class CurlRequestTest extends TestCase
 
     /**
      * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid host/
+     * @expectedExceptionMessageRegExp /^cURL error.*invalid.host/
      */
     public function testPost()
     {
         $cr = new CurlRequest(
-            'invalid host',
+            'invalid.host',
             $this->options
         );
 

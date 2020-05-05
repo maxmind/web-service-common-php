@@ -409,8 +409,8 @@ class Client
      */
     private function handleSuccess($statusCode, $body, $service)
     {
-        $expectResponseBody = $statusCode === 204 ? false : true;
-        if (!$expectResponseBody) {
+        // A 204 should have no response body
+        if ($statusCode === 204) {
             if (\strlen($body) !== 0) {
                 throw new WebServiceException(
                     "Received a 204 response for $service along with an " .
@@ -421,6 +421,7 @@ class Client
             return '';
         }
 
+        // A 200 should have a valid JSON body
         if (\strlen($body) === 0) {
             throw new WebServiceException(
                 "Received a 200 response for $service but did not " .

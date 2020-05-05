@@ -26,8 +26,7 @@ class ClientTest extends TestCase
 
     public function test204()
     {
-        $this->assertSame(
-            '',
+        $this->assertNull(
             $this->withResponse(
                 204,
                 'application/json',

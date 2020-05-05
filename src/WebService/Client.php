@@ -418,7 +418,7 @@ class Client
                 );
             }
 
-            return '';
+            return null;
         }
 
         // A 200 should have a valid JSON body

@@ -24,6 +24,18 @@ class ClientTest extends TestCase
         );
     }
 
+    public function test204()
+    {
+        $this->assertNull(
+            $this->withResponse(
+                204,
+                'application/json',
+                ''
+            ),
+            'received expected empty response'
+        );
+    }
+
     public function testOptions()
     {
         $this->runRequest(
@@ -52,6 +64,15 @@ class ClientTest extends TestCase
     public function test200WithInvalidJson()
     {
         $this->withResponse(200, 'application/json', '{');
+    }
+
+    /**
+     * @expectedException \MaxMind\Exception\WebServiceException
+     * @expectedExceptionMessage Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body
+     */
+    public function test204WithResponseBody()
+    {
+        $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 
     /**

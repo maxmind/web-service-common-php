@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.7.0 (2020-05-05)
+0.7.0 (2020-05-06)
 ------------------
 
 * Responses with a 204 status code are accepted as successes.

@@ -20,7 +20,7 @@ fi
 
 version="${BASH_REMATCH[1]}"
 date="${BASH_REMATCH[2]}"
-notes="$(echo "${BASH_REMATCH[3]}" | sed -n -e '/^[0-9]\+\.[0-9]\+\.[0-9]\+/,$!p')"
+notes="$(echo "${BASH_REMATCH[3]}" | sed -n -E '/^[0-9]+\.[0-9]+\.[0-9]+/,$!p')"
 
 if [[ "$date" !=  $(date +"%Y-%m-%d") ]]; then
     echo "$date is not today!"

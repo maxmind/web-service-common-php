@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.8.0
+------------------
+
+* PHP 7.2 or greater is now required.
+* Added additional type hints.
+
 0.7.0 (2020-05-06)
 ------------------
 

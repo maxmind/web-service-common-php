@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MaxMind\Test\WebService;
 
 use Composer\CaBundle\CaBundle;

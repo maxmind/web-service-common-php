@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MaxMind\WebService\Http;
 
 use MaxMind\Exception\HttpException;

@@ -37,12 +37,9 @@ class RequestFactory
     }
 
     /**
-     * @param string $url
-     * @param array  $options
-     *
      * @return Request
      */
-    public function request($url, $options)
+    public function request(string $url, array $options)
     {
         $options['curlHandle'] = $this->getCurlHandle();
 

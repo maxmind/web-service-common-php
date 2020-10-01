@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MaxMind\Test\WebService\Http;
 
 use MaxMind\WebService\Http\CurlRequest;
@@ -18,7 +20,7 @@ class CurlRequestTest extends TestCase
 {
     private $options;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->options = [
             'caBundle' => null,
@@ -31,12 +33,11 @@ class CurlRequestTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid.host/
-     */
     public function testGet()
     {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');
+
         $cr = new CurlRequest(
             'invalid.host',
             $this->options
@@ -45,12 +46,11 @@ class CurlRequestTest extends TestCase
         $cr->get();
     }
 
-    /**
-     * @expectedException \MaxMind\Exception\HttpException
-     * @expectedExceptionMessageRegExp /^cURL error.*invalid.host/
-     */
     public function testPost()
     {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');
+
         $cr = new CurlRequest(
             'invalid.host',
             $this->options

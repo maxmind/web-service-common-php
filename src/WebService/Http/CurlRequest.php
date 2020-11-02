@@ -123,6 +123,14 @@ class CurlRequest implements Request
         $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $contentType = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
 
-        return [$statusCode, $contentType, $body];
+        return [
+          $statusCode,
+          // The PHP docs say "Content-Type: of the requested document. NULL
+          // indicates server did not send valid Content-Type: header" for
+          // CURLINFO_CONTENT_TYPE. However, it will return FALSE if no header
+          // is set. To keep our types simple, we return null in this case.
+          ($contentType === false ? null : $contentType),
+          $body,
+        ];
     }
 }

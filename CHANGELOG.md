@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+0.8.1 (2020-11-02)
+------------------
+
+* We now correctly handle responses without a `Content-Type` header. In 0.8.0,
+  such responses could lead to a type error. In particular, this affected the
+  minFraud Report Transaction endpoint, which returns a response with no
+  content. Reported by Dmitry Malashko. GitHub #99 on
+  `maxmind/minfraud-api-php`.
+
 0.8.0 (2020-10-01)
 ------------------
 

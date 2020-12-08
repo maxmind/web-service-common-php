@@ -149,7 +149,7 @@ class Client
            ' curl/' . $curlVersion['version'];
     }
 
-    private function createRequest(string $path, array $headers = []): \MaxMind\WebService\Http\Request
+    private function createRequest(string $path, array $headers = []): Http\Request
     {
         array_push(
             $headers,

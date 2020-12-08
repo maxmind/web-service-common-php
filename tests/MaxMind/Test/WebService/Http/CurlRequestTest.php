@@ -20,7 +20,7 @@ class CurlRequestTest extends TestCase
 {
     private $options;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->options = [
             'caBundle' => null,

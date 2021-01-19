@@ -18,6 +18,9 @@ use PHPUnit\Framework\TestCase;
  */
 class CurlRequestTest extends TestCase
 {
+    /**
+     * @var array
+     */
     private $options;
 
     protected function setUp(): void
@@ -33,7 +36,7 @@ class CurlRequestTest extends TestCase
         ];
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');
@@ -46,7 +49,7 @@ class CurlRequestTest extends TestCase
         $cr->get();
     }
 
-    public function testPost()
+    public function testPost(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');

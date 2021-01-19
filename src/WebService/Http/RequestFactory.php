@@ -27,6 +27,7 @@ class RequestFactory
         }
     }
 
+    // @phpstan-ignore-next-line
     private function getCurlHandle()
     {
         if (empty($this->ch)) {

@@ -26,14 +26,41 @@ class Client
 {
     const VERSION = '0.2.0';
 
+    /**
+     * @var string|null
+     */
     private $caBundle;
+    /**
+     * @var float|null
+     */
     private $connectTimeout;
+    /**
+     * @var string
+     */
     private $host = 'api.maxmind.com';
+    /**
+     * @var RequestFactory
+     */
     private $httpRequestFactory;
+    /**
+     * @var string
+     */
     private $licenseKey;
+    /**
+     * @var string|null
+     */
     private $proxy;
+    /**
+     * @var float|null
+     */
     private $timeout;
+    /**
+     * @var string
+     */
     private $userAgentPrefix;
+    /**
+     * @var int
+     */
     private $accountId;
 
     /**
@@ -443,7 +470,7 @@ class Client
         return $decodedContent;
     }
 
-    private function getCaBundle()
+    private function getCaBundle(): ?string
     {
         $curlVersion = curl_version();
 

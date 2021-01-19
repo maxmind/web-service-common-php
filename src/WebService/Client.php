@@ -172,7 +172,7 @@ class Client
     {
         $curlVersion = curl_version();
 
-        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . PHP_VERSION .
+        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION .
            ' curl/' . $curlVersion['version'];
     }
 
@@ -241,15 +241,15 @@ class Client
     {
         $errno = json_last_error();
         switch ($errno) {
-            case JSON_ERROR_DEPTH:
+            case \JSON_ERROR_DEPTH:
                 return 'The maximum stack depth has been exceeded.';
-            case JSON_ERROR_STATE_MISMATCH:
+            case \JSON_ERROR_STATE_MISMATCH:
                 return 'Invalid or malformed JSON.';
-            case JSON_ERROR_CTRL_CHAR:
+            case \JSON_ERROR_CTRL_CHAR:
                 return 'Control character error.';
-            case JSON_ERROR_SYNTAX:
+            case \JSON_ERROR_SYNTAX:
                 return 'Syntax error.';
-            case JSON_ERROR_UTF8:
+            case \JSON_ERROR_UTF8:
                 return 'Malformed UTF-8 characters.';
             default:
                 return "Other JSON error ($errno).";

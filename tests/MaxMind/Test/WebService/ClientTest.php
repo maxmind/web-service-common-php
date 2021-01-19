@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversNothing
+ *
+ * @internal
  */
 class ClientTest extends TestCase
 {
@@ -235,7 +237,7 @@ class ClientTest extends TestCase
         ];
 
         $curlVersion = curl_version();
-        $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . PHP_VERSION
+        $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
         if (isset($options['userAgent'])) {
             $userAgent = $options['userAgent'] . ' ' . $userAgent;

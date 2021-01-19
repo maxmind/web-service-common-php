@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
 // look into those.
 /**
  * @coversNothing
+ *
+ * @internal
  */
 class CurlRequestTest extends TestCase
 {

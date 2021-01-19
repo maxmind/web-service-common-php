@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversNothing
+ *
+ * @internal
  */
 class ClientTest extends TestCase
 {

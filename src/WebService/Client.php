@@ -24,7 +24,7 @@ use MaxMind\WebService\Http\RequestFactory;
  */
 class Client
 {
-    const VERSION = '0.2.0';
+    public const VERSION = '0.2.0';
 
     /**
      * @var string|null
@@ -142,7 +142,7 @@ class Client
             ['Content-Type: application/json']
         );
 
-        list($statusCode, $contentType, $responseBody) = $request->post($requestBody);
+        [$statusCode, $contentType, $responseBody] = $request->post($requestBody);
 
         return $this->handleResponse(
             $statusCode,
@@ -157,7 +157,7 @@ class Client
     {
         $request = $this->createRequest($path);
 
-        list($statusCode, $contentType, $responseBody) = $request->get();
+        [$statusCode, $contentType, $responseBody] = $request->get();
 
         return $this->handleResponse(
             $statusCode,
@@ -240,17 +240,23 @@ class Client
     private function jsonErrorDescription(): string
     {
         $errno = json_last_error();
+
         switch ($errno) {
             case \JSON_ERROR_DEPTH:
                 return 'The maximum stack depth has been exceeded.';
+
             case \JSON_ERROR_STATE_MISMATCH:
                 return 'Invalid or malformed JSON.';
+
             case \JSON_ERROR_CTRL_CHAR:
                 return 'Control character error.';
+
             case \JSON_ERROR_SYNTAX:
                 return 'Syntax error.';
+
             case \JSON_ERROR_UTF8:
                 return 'Malformed UTF-8 characters.';
+
             default:
                 return "Other JSON error ($errno).";
         }
@@ -354,6 +360,7 @@ class Client
                     $statusCode,
                     $this->urlFor($path)
                 );
+
             case 'ACCOUNT_ID_REQUIRED':
             case 'ACCOUNT_ID_UNKNOWN':
             case 'AUTHORIZATION_INVALID':
@@ -366,6 +373,7 @@ class Client
                     $statusCode,
                     $this->urlFor($path)
                 );
+
             case 'OUT_OF_QUERIES':
             case 'INSUFFICIENT_FUNDS':
                 throw new InsufficientFundsException(
@@ -374,6 +382,7 @@ class Client
                     $statusCode,
                     $this->urlFor($path)
                 );
+
             case 'PERMISSION_REQUIRED':
                 throw new PermissionRequiredException(
                     $message,
@@ -381,6 +390,7 @@ class Client
                     $statusCode,
                     $this->urlFor($path)
                 );
+
             default:
                 throw new InvalidRequestException(
                     $message,

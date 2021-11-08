@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.9.0
+------------------
+
+* Improved internal type hint usage.
+
 0.8.1 (2020-11-02)
 ------------------
 

@@ -16,7 +16,7 @@ class RequestFactory
      * done the connection is kept alive, SSL resumption can be used
      * etcetera.
      *
-     * @var resource
+     * @var \CurlHandle|null
      */
     private $ch;
 
@@ -27,8 +27,7 @@ class RequestFactory
         }
     }
 
-    // @phpstan-ignore-next-line
-    private function getCurlHandle()
+    private function getCurlHandle(): \CurlHandle
     {
         if (empty($this->ch)) {
             $this->ch = curl_init();
@@ -37,10 +36,7 @@ class RequestFactory
         return $this->ch;
     }
 
-    /**
-     * @return Request
-     */
-    public function request(string $url, array $options)
+    public function request(string $url, array $options): Request
     {
         $options['curlHandle'] = $this->getCurlHandle();
 

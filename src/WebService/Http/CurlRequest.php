@@ -14,7 +14,7 @@ use MaxMind\Exception\HttpException;
 class CurlRequest implements Request
 {
     /**
-     * @var resource
+     * @var \CurlHandle
      */
     private $ch;
 
@@ -58,7 +58,7 @@ class CurlRequest implements Request
     }
 
     /**
-     * @return resource
+     * @return \CurlHandle
      */
     private function createCurl()
     {
@@ -103,7 +103,7 @@ class CurlRequest implements Request
     }
 
     /**
-     * @param resource $curl
+     * @param \CurlHandle $curl
      *
      * @throws HttpException
      */

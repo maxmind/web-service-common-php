@@ -51,10 +51,6 @@ fi
 
 git push
 
-message="$version
-
-$notes"
-
-hub release create -m "$message" "$tag"
+gh release create --target "$(git branch --show-current)" -t "$version" -n "$notes" "$tag"
 
 git push --tags

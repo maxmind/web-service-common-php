@@ -7,6 +7,9 @@ namespace MaxMind\Test\WebService;
 use Composer\CaBundle\CaBundle;
 use MaxMind\WebService\Client;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
 
 /**
  * @coversNothing
@@ -15,8 +18,38 @@ use PHPUnit\Framework\TestCase;
  */
 class ClientTest extends TestCase
 {
+    /** @var Process */
+    private static $process;
+
+    // Starting up a test server before the class
+    public static function setUpBeforeClass():void
+    {
+        $routerPath = __DIR__.'/TestServer/router.php';
+        echo $routerPath;
+        self::$process = new Process(['php', '-S', 'localhost:8080', $routerPath]);
+        self::$process->start();
+
+        // executes after the command finishes
+        if (!self::$process->isSuccessful()) {
+            throw new ProcessFailedException(self::$process);
+        }
+
+        usleep(100000); //wait for server to get going
+    }
+
+    // Stop the test server after the tests are ran
+    public static function tearDownAfterClass():void
+    {
+        self::$process->stop();
+    }
+
     public function test200(): void
     {
+        // $client = new Client(['http_errors' => false]);
+
+        // $response = $client->request("GET", "http://localhost:8080");
+        // $this->assertEquals(404, $response->getStatusCode());
+
         $this->assertSame(
             ['a' => 'b'],
             $this->withResponse(

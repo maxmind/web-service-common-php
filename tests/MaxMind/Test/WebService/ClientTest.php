@@ -47,7 +47,7 @@ class ClientTest extends TestCase
     protected function tearDown(): void
     {
         // If the test server is used in a test, then stop it.
-        $this->process->stop(0, \SIGKILL);
+        $this->process->stop(0);
 
         // Wait for server to get going
         usleep(100000);

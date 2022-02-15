@@ -20,34 +20,37 @@ class ClientTest extends TestCase
     private $process;
 
     // Starting up a test server before the class
-    protected function setUp():void
+    protected function setUp(): void
     {
         // Router is the test server controller
-        $routerPath = __DIR__.'/TestServer/router.php';
+        $routerPath = __DIR__ . '/TestServer/router.php';
         $this->process = new Process(['php', '-S', 'localhost:8084', $routerPath]);
         $this->process->setInput('foobar');
     }
 
     // Sets up the response that the test server is going to return.
-    public function setupResponse(string $responseJSON):void{
+    public function setupResponse(string $responseJSON): void
+    {
         $this->process->setInput($responseJSON);
     }
-   
+
     // Starts up the process of the test server
-    public function startTestServer():void{
+    public function startTestServer(): void
+    {
         $this->process->start();
 
         // Wait for server to get going
-        usleep(500000); 
+        usleep(500000);
     }
 
     // // Stop the test server after the tests are ran
-    protected function tearDown():void{
+    protected function tearDown(): void
+    {
         // If the test server is used in a test, then stop it.
-        $this->process->stop(0, SIGKILL);
+        $this->process->stop(0, \SIGKILL);
 
         // Wait for server to get going
-        usleep(100000); 
+        usleep(100000);
     }
 
     public function test200(): void
@@ -227,14 +230,14 @@ class ClientTest extends TestCase
 
     // Convenience method when you don't care about the request
     // It runs the request through the test server.
-    // This version is used for when we want to test with an actual server. 
+    // This version is used for when we want to test with an actual server.
     private function withResponseTestServer(int $statusCode, string $contentType, string $body): ?array
     {
         // Set up the test server
         $response = [
-            "status" => $statusCode,
-            "body" => $body, 
-            "contentType" => $contentType
+            'status' => $statusCode,
+            'body' => $body,
+            'contentType' => $contentType,
         ];
         $this->setupResponse(json_encode($response));
         $this->startTestServer();
@@ -246,8 +249,8 @@ class ClientTest extends TestCase
             10,
             '0123456789',
             [
-                "host" => "localhost:8084",
-                "protocol" => "http://"
+                'host' => 'localhost:8084',
+                'protocol' => 'http://',
             ]
         );
     }
@@ -283,7 +286,7 @@ class ClientTest extends TestCase
         );
     }
 
-    // The other version of withResponse exists because some responses are not supported 
+    // The other version of withResponse exists because some responses are not supported
     // by the built-in php server, such as sending a body while having a status 204(No-content).
     private function runRequest(
         string $service,

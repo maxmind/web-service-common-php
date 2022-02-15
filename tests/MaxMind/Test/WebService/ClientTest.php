@@ -112,8 +112,6 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
-        // Fatih: I was not able to use the built-in server to send a body with 204. For some reason,
-        // the echo in the router.php doesn't send the body when the status is 204 (No-content).
         $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 

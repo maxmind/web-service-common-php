@@ -23,7 +23,7 @@ class ClientTest extends TestCase
     protected function setUp(): void
     {
         // Router is the test server controller
-        $routerPath = __DIR__ . '/TestServer/router.php';
+        $routerPath = __DIR__ . '/TestServer.php';
         $this->process = new Process(['php', '-S', 'localhost:8084', $routerPath]);
         $this->process->setInput('foobar');
     }

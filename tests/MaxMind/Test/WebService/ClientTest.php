@@ -38,7 +38,7 @@ class ClientTest extends TestCase
         $this->process->start();
 
         // Wait for server to get going
-        usleep(100000); 
+        usleep(500000); 
     }
 
     // // Stop the test server after the tests are ran

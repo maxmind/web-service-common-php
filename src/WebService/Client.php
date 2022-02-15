@@ -42,6 +42,11 @@ class Client
     private $host = 'api.maxmind.com';
 
     /**
+     * @var string
+     */
+    private $protocol = 'https://';
+
+    /**
      * @var RequestFactory
      */
     private $httpRequestFactory;
@@ -97,6 +102,9 @@ class Client
 
         if (isset($options['host'])) {
             $this->host = $options['host'];
+        }
+        if (isset($options['protocol'])) {
+            $this->protocol = $options['protocol'];
         }
         if (isset($options['userAgent'])) {
             $this->userAgentPrefix = $options['userAgent'] . ' ';
@@ -277,7 +285,7 @@ class Client
      */
     private function urlFor(string $path): string
     {
-        return 'https://' . $this->host . $path;
+        return $this->protocol . $this->host . $path;
     }
 
     /**

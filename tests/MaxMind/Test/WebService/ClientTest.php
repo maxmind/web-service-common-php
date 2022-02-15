@@ -8,8 +8,6 @@ use Composer\CaBundle\CaBundle;
 use MaxMind\WebService\Client;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-
 
 /**
  * @coversNothing
@@ -19,40 +17,44 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class ClientTest extends TestCase
 {
     /** @var Process */
-    private static $process;
+    private $process;
 
     // Starting up a test server before the class
-    public static function setUpBeforeClass():void
+    protected function setUp():void
     {
+        // Router is the test server controller
         $routerPath = __DIR__.'/TestServer/router.php';
-        echo $routerPath;
-        self::$process = new Process(['php', '-S', 'localhost:8080', $routerPath]);
-        self::$process->start();
-
-        // executes after the command finishes
-        if (!self::$process->isSuccessful()) {
-            throw new ProcessFailedException(self::$process);
-        }
-
-        usleep(100000); //wait for server to get going
+        $this->process = new Process(['php', '-S', 'localhost:8084', $routerPath]);
+        $this->process->setInput('foobar');
     }
 
-    // Stop the test server after the tests are ran
-    public static function tearDownAfterClass():void
-    {
-        self::$process->stop();
+    // Sets up the response that the test server is going to return.
+    public function setupResponse(string $responseJSON):void{
+        $this->process->setInput($responseJSON);
+    }
+   
+    // Starts up the process of the test server
+    public function startTestServer():void{
+        $this->process->start();
+
+        // Wait for server to get going
+        usleep(100000); 
+    }
+
+    // // Stop the test server after the tests are ran
+    protected function tearDown():void{
+        // If the test server is used in a test, then stop it.
+        $this->process->stop(0, SIGKILL);
+
+        // Wait for server to get going
+        usleep(100000); 
     }
 
     public function test200(): void
     {
-        // $client = new Client(['http_errors' => false]);
-
-        // $response = $client->request("GET", "http://localhost:8080");
-        // $this->assertEquals(404, $response->getStatusCode());
-
         $this->assertSame(
             ['a' => 'b'],
-            $this->withResponse(
+            $this->withResponseTestServer(
                 200,
                 'application/json',
                 '{"a":"b"}'
@@ -64,7 +66,7 @@ class ClientTest extends TestCase
     public function test204(): void
     {
         $this->assertNull(
-            $this->withResponse(
+            $this->withResponseTestServer(
                 204,
                 'application/json',
                 ''
@@ -99,7 +101,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
 
-        $this->withResponse(200, 'application/json', '{');
+        $this->withResponseTestServer(200, 'application/json', '{');
     }
 
     public function test204WithResponseBody(): void
@@ -107,6 +109,8 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
+        // Fatih: I was not able to use the built-in server to send a body with 204. For some reason,
+        // the echo in the router.php doesn't send the body when the status is 204 (No-content).
         $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 
@@ -115,7 +119,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\InsufficientFundsException::class);
         $this->expectExceptionMessage('out of credit');
 
-        $this->withResponse(
+        $this->withResponseTestServer(
             402,
             'application/json',
             '{"code":"INSUFFICIENT_FUNDS","error":"out of credit"}'
@@ -130,7 +134,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\AuthenticationException::class);
         $this->expectExceptionMessage('Invalid auth');
 
-        $this->withResponse(
+        $this->withResponseTestServer(
             401,
             'application/json',
             '{"code":"' . $code . '","error":"Invalid auth"}'
@@ -154,7 +158,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\PermissionRequiredException::class);
         $this->expectExceptionMessage('Permission required');
 
-        $this->withResponse(
+        $this->withResponseTestServer(
             403,
             'application/json',
             '{"code":"PERMISSION_REQUIRED","error":"Permission required"}'
@@ -166,7 +170,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\InvalidRequestException::class);
         $this->expectExceptionMessage('IP invalid');
 
-        $this->withResponse(
+        $this->withResponseTestServer(
             400,
             'application/json',
             '{"code":"IP_ADDRESS_INVALID","error":"IP invalid"}'
@@ -178,7 +182,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService but could not decode the response as JSON: Syntax error. Body: {"blah"}');
 
-        $this->withResponse(400, 'application/json', '{"blah"}');
+        $this->withResponseTestServer(400, 'application/json', '{"blah"}');
     }
 
     public function test400WithNoBody(): void
@@ -186,7 +190,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with no body');
 
-        $this->withResponse(400, 'application/json', '');
+        $this->withResponseTestServer(400, 'application/json', '');
     }
 
     public function test400WithUnexpectedContentType(): void
@@ -194,7 +198,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with the following body: text');
 
-        $this->withResponse(400, 'text/plain', 'text');
+        $this->withResponseTestServer(400, 'text/plain', 'text');
     }
 
     public function test400WithUnexpectedJson(): void
@@ -202,7 +206,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Error response contains JSON but it does not specify code or error keys: {"not":"expected"}');
 
-        $this->withResponse(400, 'application/json', '{"not":"expected"}');
+        $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}');
     }
 
     public function test300(): void
@@ -210,7 +214,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received an unexpected HTTP status (300) for TestService');
 
-        $this->withResponse(300, 'application/json', '');
+        $this->withResponseTestServer(300, 'application/json', '');
     }
 
     public function test500(): void
@@ -218,7 +222,52 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a server error (500) for TestService');
 
-        $this->withResponse(500, 'application/json', '');
+        $this->withResponseTestServer(500, 'application/json', '');
+    }
+
+    // Convenience method when you don't care about the request
+    // It runs the request through the test server.
+    // This version is used for when we want to test with an actual server. 
+    private function withResponseTestServer(int $statusCode, string $contentType, string $body): ?array
+    {
+        // Set up the test server
+        $response = [
+            "status" => $statusCode,
+            "body" => $body, 
+            "contentType" => $contentType
+        ];
+        $this->setupResponse(json_encode($response));
+        $this->startTestServer();
+
+        return $this->runRequestTestServer(
+            'TestService',
+            '/path',
+            [],
+            10,
+            '0123456789',
+            [
+                "host" => "localhost:8084",
+                "protocol" => "http://"
+            ]
+        );
+    }
+
+    // runs the request through the test server
+    private function runRequestTestServer(
+        string $service,
+        string $path,
+        array $requestContent,
+        int $accountId = 10,
+        string $licenseKey = '0123456789',
+        array $options = []
+    ): ?array {
+        $client = new Client(
+            $accountId,
+            $licenseKey,
+            $options
+        );
+
+        return $client->post($service, $path, $requestContent);
     }
 
     // convenience method when you don't care about the request
@@ -234,6 +283,8 @@ class ClientTest extends TestCase
         );
     }
 
+    // The other version of withResponse exists because some responses are not supported 
+    // by the built-in php server, such as sending a body while having a status 204(No-content).
     private function runRequest(
         string $service,
         string $path,

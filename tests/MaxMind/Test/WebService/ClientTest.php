@@ -9,6 +9,10 @@ use MaxMind\WebService\Client;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
+// This is the tmp file that the responses are stacks are stored.
+define('responseFileName', '/web-service-common-php-response.json');
+define('fullResponseFilePath',  sys_get_temp_dir() . responseFileName);
+
 /**
  * @coversNothing
  *
@@ -17,40 +21,71 @@ use Symfony\Component\Process\Process;
 class ClientTest extends TestCase
 {
     /** @var Process */
-    private $process;
-
-    // Starting up a test server before the class
-    protected function setUp(): void
-    {
-        // Router is the test server controller
-        $routerPath = __DIR__ . '/TestServer.php';
-        $this->process = new Process(['php', '-S', 'localhost:8084', $routerPath]);
-        $this->process->setInput('foobar');
-    }
+    public static $process;
+    public static $port;
 
     // Sets up the response that the test server is going to return.
-    public function setupResponse(string $responseJSON): void
+    public static function addInResponseQueue(string $responseJSON): void
     {
-        $this->process->setInput($responseJSON);
+        $fh = fopen(fullResponseFilePath, 'w') or die("Can't create tmp response");
+        fwrite($fh, $responseJSON . PHP_EOL);
+        fclose($fh);
     }
 
-    // Starts up the process of the test server
-    public function startTestServer(): void
+    // Makes sure the built-in server is up by querying
+    // `/test` endpoint of the TestServer.
+    public static function isWebsiteUp()
     {
-        $this->process->start();
+        $requestUrl = "localhost:" . strval(self::$port) . "/test";
 
-        // Wait for server to get going
-        usleep(1000000);
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $requestUrl);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        curl_exec($ch);
+
+        $response_status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+        curl_close($ch);
+
+        return $response_status == 200;
     }
 
-    // // Stop the test server after the tests are ran
-    protected function tearDown(): void
+    public static function setUpBeforeClass(): void
+    {
+
+        // Clean up the response json if there is one.
+        if (file_exists(fullResponseFilePath)) {
+            unlink(fullResponseFilePath);
+        }
+
+        // Router is the test server controller
+        $routerPath = __DIR__ . '/TestServer.php';
+
+        $socket = \socket_create_listen(0);
+        \socket_getsockname($socket, $addr, self::$port);
+        \socket_close($socket);
+
+        self::$process = new Process(['php', '-S', 'localhost:' . strval(self::$port), $routerPath]);
+        self::$process->setEnv(['RESPONSEJSON' => fullResponseFilePath]);
+        self::$process->start();
+
+        // Checking if the test server is up under 5 seconds.
+        for ($half_seconds = 0; $half_seconds < 10; $half_seconds++) {
+            if (self::isWebsiteUp()) return;
+            usleep(500000); // wait half a second
+        }
+        fwrite(STDERR, "Test server could not be started.");
+        exit(1);
+    }
+
+    // Stop the test server after the tests are ran
+    public static function tearDownAfterClass(): void
     {
         // If the test server is used in a test, then stop it.
-        $this->process->stop(0);
-
-        // Wait for server to get going
-        usleep(100000);
+        if (self::$process != null) self::$process->stop(0);
     }
 
     public function test200(): void
@@ -237,8 +272,7 @@ class ClientTest extends TestCase
             'body' => $body,
             'contentType' => $contentType,
         ];
-        $this->setupResponse(json_encode($response));
-        $this->startTestServer();
+        self::addInResponseQueue(json_encode($response));
 
         return $this->runRequestTestServer(
             'TestService',
@@ -247,7 +281,7 @@ class ClientTest extends TestCase
             10,
             '0123456789',
             [
-                'host' => 'localhost:8084',
+                'host' => 'localhost:' . self::$port,
                 'protocol' => 'http://',
             ]
         );
@@ -317,7 +351,7 @@ class ClientTest extends TestCase
         $headers = [
             'Content-Type: application/json',
             'Authorization: Basic '
-            . base64_encode($accountId . ':' . $licenseKey),
+                . base64_encode($accountId . ':' . $licenseKey),
             'Accept: application/json',
         ];
 

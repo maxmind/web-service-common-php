@@ -4,9 +4,24 @@
 // It sends the response only once at startup that is sent to it through
 // STDIN. Then, it needs to be restarted again to get the STDIN again.
 
-// Getting the response that should be returned to the requester.
-$responeJSON = readline('What response should be returned?');
-$parsedJSON = json_decode($responeJSON);
+if ($_SERVER['REQUEST_URI'] == '/test') { // For checking if the server is up
+    exit(0);
+}
+
+// Getting the location of the tmp response json file.
+$fullResponseFilePath = getenv('RESPONSEJSON') ?: getenv('RESPONSEJSON');
+
+// If there is no response file, return empty
+if (!file_exists($fullResponseFilePath)) {
+    exit(0);
+}
+
+// Consume a response from the response file
+$contents = file($fullResponseFilePath, FILE_IGNORE_NEW_LINES);
+$responseJSON = array_shift($contents);
+$parsedJSON = json_decode($responseJSON);
+file_put_contents($fullResponseFilePath, implode(PHP_EOL, $contents));
+
 
 // Set the content type
 if (property_exists($parsedJSON, 'contentType')) {

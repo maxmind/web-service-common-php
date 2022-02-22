@@ -120,26 +120,60 @@ class ClientTest extends TestCase
         }
     }
 
-    public function test200(): void
+    // Sending a post request
+    public function test200Post(): void
     {
         $this->assertSame(
             ['a' => 'b'],
             $this->withResponseTestServer(
                 200,
                 'application/json',
-                '{"a":"b"}'
+                '{"a":"b"}',
+                'post'
             ),
             'received expected decoded response'
         );
     }
 
-    public function test204(): void
+    // Sending a post request
+    public function test200Get(): void
     {
+        // Sending a get request
+        $this->assertSame(
+            ['a' => 'b'],
+            $this->withResponseTestServer(
+                200,
+                'application/json',
+                '{"a":"b"}',
+                'get'
+            ),
+            'received expected decoded response'
+        );
+    }
+
+    public function test204Post(): void
+    {
+        // Sending a post request
         $this->assertNull(
             $this->withResponseTestServer(
                 204,
                 'application/json',
-                ''
+                '',
+                'post'
+            ),
+            'received expected empty response'
+        );
+    }
+
+    public function test204Get(): void
+    {
+        // Sending a get request
+        $this->assertNull(
+            $this->withResponseTestServer(
+                204,
+                'application/json',
+                '',
+                'get'
             ),
             'received expected empty response'
         );
@@ -147,6 +181,7 @@ class ClientTest extends TestCase
 
     public function testOptions(): void
     {
+        // Sending a post request
         $this->runRequest(
             'TestService',
             '/path',
@@ -166,15 +201,23 @@ class ClientTest extends TestCase
         );
     }
 
-    public function test200WithInvalidJson(): void
+    public function test200PostWithInvalidJson(): void
     {
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
 
-        $this->withResponseTestServer(200, 'application/json', '{');
+        $this->withResponseTestServer(200, 'application/json', '{', 'post');
     }
 
-    public function test204WithResponseBody(): void
+    public function test200GetWithInvalidJson(): void
+    {
+        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
+
+        $this->withResponseTestServer(200, 'application/json', '{', 'post', 'get');
+    }
+
+    public function test204PostWithResponseBody(): void
     {
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
@@ -182,7 +225,15 @@ class ClientTest extends TestCase
         $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 
-    public function testInsufficientFunds(): void
+    public function test204GetWithResponseBody(): void
+    {
+        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
+
+        $this->withResponse(204, 'application/json', 'non-empty response body', 'get');
+    }
+
+    public function testGetInsufficientFunds(): void
     {
         $this->expectException(\MaxMind\Exception\InsufficientFundsException::class);
         $this->expectExceptionMessage('out of credit');
@@ -190,14 +241,28 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(
             402,
             'application/json',
-            '{"code":"INSUFFICIENT_FUNDS","error":"out of credit"}'
+            '{"code":"INSUFFICIENT_FUNDS","error":"out of credit"}',
+            'post'
+        );
+    }
+
+    public function testPostInsufficientFunds(): void
+    {
+        $this->expectException(\MaxMind\Exception\InsufficientFundsException::class);
+        $this->expectExceptionMessage('out of credit');
+
+        $this->withResponseTestServer(
+            402,
+            'application/json',
+            '{"code":"INSUFFICIENT_FUNDS","error":"out of credit"}',
+            'get'
         );
     }
 
     /**
      * @dataProvider invalidAuthCodes
      */
-    public function testInvalidAuth(string $code): void
+    public function testPostInvalidAuth(string $code): void
     {
         $this->expectException(\MaxMind\Exception\AuthenticationException::class);
         $this->expectExceptionMessage('Invalid auth');
@@ -205,7 +270,24 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(
             401,
             'application/json',
-            '{"code":"' . $code . '","error":"Invalid auth"}'
+            '{"code":"' . $code . '","error":"Invalid auth"}',
+            'post'
+        );
+    }
+
+    /**
+     * @dataProvider invalidAuthCodes
+     */
+    public function testGetInvalidAuth(string $code): void
+    {
+        $this->expectException(\MaxMind\Exception\AuthenticationException::class);
+        $this->expectExceptionMessage('Invalid auth');
+
+        $this->withResponseTestServer(
+            401,
+            'application/json',
+            '{"code":"' . $code . '","error":"Invalid auth"}',
+            'get'
         );
     }
 
@@ -221,7 +303,7 @@ class ClientTest extends TestCase
         ];
     }
 
-    public function testPermissionRequired(): void
+    public function testGetPermissionRequired(): void
     {
         $this->expectException(\MaxMind\Exception\PermissionRequiredException::class);
         $this->expectExceptionMessage('Permission required');
@@ -229,11 +311,25 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(
             403,
             'application/json',
-            '{"code":"PERMISSION_REQUIRED","error":"Permission required"}'
+            '{"code":"PERMISSION_REQUIRED","error":"Permission required"}',
+            'get'
         );
     }
 
-    public function testInvalidRequest(): void
+    public function testPostPermissionRequired(): void
+    {
+        $this->expectException(\MaxMind\Exception\PermissionRequiredException::class);
+        $this->expectExceptionMessage('Permission required');
+
+        $this->withResponseTestServer(
+            403,
+            'application/json',
+            '{"code":"PERMISSION_REQUIRED","error":"Permission required"}',
+            'post'
+        );
+    }
+
+    public function testPostInvalidRequest(): void
     {
         $this->expectException(\MaxMind\Exception\InvalidRequestException::class);
         $this->expectExceptionMessage('IP invalid');
@@ -241,62 +337,124 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(
             400,
             'application/json',
-            '{"code":"IP_ADDRESS_INVALID","error":"IP invalid"}'
+            '{"code":"IP_ADDRESS_INVALID","error":"IP invalid"}',
+            'get'
         );
     }
 
-    public function test400WithInvalidJson(): void
+    public function testGetInvalidRequest(): void
+    {
+        $this->expectException(\MaxMind\Exception\InvalidRequestException::class);
+        $this->expectExceptionMessage('IP invalid');
+
+        $this->withResponseTestServer(
+            400,
+            'application/json',
+            '{"code":"IP_ADDRESS_INVALID","error":"IP invalid"}',
+            'get'
+        );
+    }
+
+    public function testPost400WithInvalidJson(): void
     {
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService but could not decode the response as JSON: Syntax error. Body: {"blah"}');
 
-        $this->withResponseTestServer(400, 'application/json', '{"blah"}');
+        $this->withResponseTestServer(400, 'application/json', '{"blah"}', 'post');
     }
 
-    public function test400WithNoBody(): void
+    public function testGet400WithInvalidJson(): void
+    {
+        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectExceptionMessage('Received a 400 error for TestService but could not decode the response as JSON: Syntax error. Body: {"blah"}');
+
+        $this->withResponseTestServer(400, 'application/json', '{"blah"}', 'get');
+    }
+
+    public function testPost400WithNoBody(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with no body');
 
-        $this->withResponseTestServer(400, 'application/json', '');
+        $this->withResponseTestServer(400, 'application/json', '', 'post');
     }
 
-    public function test400WithUnexpectedContentType(): void
+    public function testGet400WithNoBody(): void
+    {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessage('Received a 400 error for TestService with no body');
+
+        $this->withResponseTestServer(400, 'application/json', '', 'get');
+    }
+
+    public function testPost400WithUnexpectedContentType(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with the following body: text');
 
-        $this->withResponseTestServer(400, 'text/plain', 'text');
+        $this->withResponseTestServer(400, 'text/plain', 'text', 'post');
     }
 
-    public function test400WithUnexpectedJson(): void
+    public function testGet400WithUnexpectedContentType(): void
+    {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessage('Received a 400 error for TestService with the following body: text');
+
+        $this->withResponseTestServer(400, 'text/plain', 'text', 'get');
+    }
+
+    public function testPost400WithUnexpectedJson(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Error response contains JSON but it does not specify code or error keys: {"not":"expected"}');
 
-        $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}');
+        $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}', 'post');
     }
 
-    public function test300(): void
+    public function testGet400WithUnexpectedJson(): void
+    {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessage('Error response contains JSON but it does not specify code or error keys: {"not":"expected"}');
+
+        $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}', 'get');
+    }
+
+    public function testPost300(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received an unexpected HTTP status (300) for TestService');
 
-        $this->withResponseTestServer(300, 'application/json', '');
+        $this->withResponseTestServer(300, 'application/json', '', 'post');
     }
 
-    public function test500(): void
+    public function testGet300(): void
+    {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessage('Received an unexpected HTTP status (300) for TestService');
+
+        $this->withResponseTestServer(300, 'application/json', '', 'get');
+    }
+
+    public function testPost500(): void
     {
         $this->expectException(\MaxMind\Exception\HttpException::class);
         $this->expectExceptionMessage('Received a server error (500) for TestService');
 
-        $this->withResponseTestServer(500, 'application/json', '');
+        $this->withResponseTestServer(500, 'application/json', '', 'post');
+    }
+
+    public function testGet500(): void
+    {
+        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectExceptionMessage('Received a server error (500) for TestService');
+
+        $this->withResponseTestServer(500, 'application/json', '', 'get');
     }
 
     // Convenience method when you don't care about the request
     // It runs the request through the test server.
     // This version is used for when we want to test with an actual server.
-    private function withResponseTestServer(int $statusCode, string $contentType, string $body): ?array
+    private function withResponseTestServer(int $statusCode, string $contentType, string $body, string $httpMethod): ?array
     {
         // Set up the test server
         $response = [
@@ -315,7 +473,8 @@ class ClientTest extends TestCase
             [
                 'host' => 'localhost:' . self::$port,
                 'protocol' => 'http://',
-            ]
+            ],
+            $httpMethod
         );
     }
 
@@ -324,15 +483,20 @@ class ClientTest extends TestCase
         string $service,
         string $path,
         array $requestContent,
-        int $accountId = 10,
-        string $licenseKey = '0123456789',
-        array $options = []
+        int $accountId,
+        string $licenseKey,
+        array $options,
+        string $httpMethod
     ): ?array {
         $client = new Client(
             $accountId,
             $licenseKey,
             $options
         );
+
+        if ($httpMethod === 'get') {
+            return $client->get($service, $path, $requestContent);
+        }
 
         return $client->post($service, $path, $requestContent);
     }

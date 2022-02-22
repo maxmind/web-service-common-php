@@ -27,7 +27,9 @@ class ClientTest extends TestCase
     // Sets up the response that the test server is going to return.
     public static function addInResponseQueue(string $responseJSON): void
     {
-        $fh = fopen(fullResponseFilePath, 'wb') || exit("Can't create tmp response");
+        if (!$fh = fopen(fullResponseFilePath, 'wb')) {
+            throw new \RuntimeException('Could not open tmp response json file.');
+        }
         fwrite($fh, $responseJSON . \PHP_EOL);
         fclose($fh);
     }
@@ -92,9 +94,8 @@ class ClientTest extends TestCase
             }
             usleep(500000); // wait half a second
         }
-        fwrite(\STDERR, 'Test server could not be started.');
 
-        exit(1);
+        throw new \RuntimeException('Test server could not be started.');
     }
 
     // Stop the test server after the tests are ran

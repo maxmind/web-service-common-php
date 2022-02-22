@@ -68,18 +68,18 @@ class ClientTest extends TestCase
         // Getting a port that is available for use.
         if (strtoupper(substr(\PHP_OS, 0, 3)) === 'WIN') {
             //Windows
-            $socket = socket_create(\AF_INET, \SOCK_STREAM, \SOL_TCP);
-            socket_bind($socket, '0.0.0.0', 0);
-            socket_listen($socket);
-            socket_getsockname($socket, $addr, self::$port);
-            socket_close($socket);
+            $socket = \socket_create(\AF_INET, \SOCK_STREAM, \SOL_TCP);
+            \socket_bind($socket, '0.0.0.0', 0);
+            \socket_listen($socket);
+            \socket_getsockname($socket, $addr, self::$port);
+            \socket_close($socket);
         } else {
             //Linux
-            if (!$socket = socket_create_listen(0)) {
+            if (!$socket = \socket_create_listen(0)) {
                 throw new \RuntimeException('Could not create socket.');
             }
-            socket_getsockname($socket, $addr, self::$port);
-            socket_close($socket);
+            \socket_getsockname($socket, $addr, self::$port);
+            \socket_close($socket);
         }
 
         // Starting up the build-in server with the port we got above.

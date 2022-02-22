@@ -27,12 +27,20 @@ class ClientTest extends TestCase
     public static $port;
 
     // Sets up the response that the test server is going to return.
-    public static function addResponseInQueue(string $responseJSON): void
+    /**
+     * addResponseInQueue.
+     *
+     * @param mixed $responseJSON the body that is going to be added into the queue
+     * @param mixed $n            the number of times that it is going to be the response
+     */
+    public static function addResponseInQueue(string $responseJSON, $n = 1): void
     {
         if (!$fh = fopen(fullResponseFilePath, 'wb')) {
             throw new \RuntimeException('Could not open tmp response json file.');
         }
-        fwrite($fh, $responseJSON . \PHP_EOL);
+        for ($n; $n > 0; $n--) {
+            fwrite($fh, $responseJSON . \PHP_EOL);
+        }
         fclose($fh);
     }
 

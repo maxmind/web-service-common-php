@@ -30,8 +30,8 @@ class ClientTest extends TestCase
     /**
      * addResponseInQueue.
      *
-     * @param mixed $responseJSON the body that is going to be added into the queue
-     * @param mixed $n            the number of times that it is going to be the response
+     * @param string $responseJSON the body that is going to be added into the queue
+     * @param int    $n            the number of times that it is going to be the response
      */
     public static function addResponseInQueue(string $responseJSON, $n = 1): void
     {

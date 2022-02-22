@@ -214,7 +214,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
 
-        $this->withResponseTestServer(200, 'application/json', '{', 'post', 'get');
+        $this->withResponseTestServer(200, 'application/json', '{', 'get');
     }
 
     public function test204PostWithResponseBody(): void
@@ -230,7 +230,7 @@ class ClientTest extends TestCase
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
-        $this->withResponse(204, 'application/json', 'non-empty response body', 'get');
+        $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 
     public function testGetInsufficientFunds(): void

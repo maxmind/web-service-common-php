@@ -169,9 +169,20 @@ class Client
         );
     }
 
-    public function get(string $service, string $path): ?array
+    public function get(string $service, string $path, array $input): ?array
     {
-        $request = $this->createRequest($path);
+        $requestBody = json_encode($input);
+        if ($requestBody === false) {
+            throw new InvalidInputException(
+                'Error encoding input as JSON: '
+                . $this->jsonErrorDescription()
+            );
+        }
+
+        $request = $this->createRequest(
+            $path,
+            ['Content-Type: application/json']
+        );
 
         [$statusCode, $contentType, $responseBody] = $request->get();
 

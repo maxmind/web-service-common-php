@@ -22,6 +22,7 @@ class ClientTest extends TestCase
 {
     /** @var Process */
     public static $process;
+    
     /** @var int */
     public static $port;
 

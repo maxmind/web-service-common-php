@@ -22,10 +22,11 @@ class ClientTest extends TestCase
 {
     /** @var Process */
     public static $process;
+    /** @var int */
     public static $port;
 
     // Sets up the response that the test server is going to return.
-    public static function addInResponseQueue(string $responseJSON): void
+    public static function addResponseInQueue(string $responseJSON): void
     {
         if (!$fh = fopen(fullResponseFilePath, 'wb')) {
             throw new \RuntimeException('Could not open tmp response json file.');
@@ -36,6 +37,9 @@ class ClientTest extends TestCase
 
     // Makes sure the built-in server is up by querying
     // `/test` endpoint of the TestServer.
+    /**
+     * @return bool
+     */
     public static function isWebsiteUp()
     {
         $requestUrl = 'localhost:' . (string) (self::$port) . '/test';
@@ -291,7 +295,7 @@ class ClientTest extends TestCase
             'body' => $body,
             'contentType' => $contentType,
         ];
-        self::addInResponseQueue(json_encode($response));
+        self::addResponseInQueue(json_encode($response));
 
         return $this->runRequestTestServer(
             'TestService',

@@ -19,6 +19,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          extensions: sockets
           tools: composer
 
       - name: Setup problem matchers for PHPUnit

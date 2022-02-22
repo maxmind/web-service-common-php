@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
 // This is the tmp file that the responses are stacks are stored.
-define('responseFileName', '/web-service-common-php-response.json');
-define('fullResponseFilePath',  sys_get_temp_dir() . responseFileName);
+\define('responseFileName', '/web-service-common-php-response.json');
+\define('fullResponseFilePath', sys_get_temp_dir() . responseFileName);
 
 /**
  * @coversNothing
@@ -27,8 +27,8 @@ class ClientTest extends TestCase
     // Sets up the response that the test server is going to return.
     public static function addInResponseQueue(string $responseJSON): void
     {
-        $fh = fopen(fullResponseFilePath, 'w') or die("Can't create tmp response");
-        fwrite($fh, $responseJSON . PHP_EOL);
+        $fh = fopen(fullResponseFilePath, 'wb') || exit("Can't create tmp response");
+        fwrite($fh, $responseJSON . \PHP_EOL);
         fclose($fh);
     }
 
@@ -36,26 +36,25 @@ class ClientTest extends TestCase
     // `/test` endpoint of the TestServer.
     public static function isWebsiteUp()
     {
-        $requestUrl = "localhost:" . strval(self::$port) . "/test";
+        $requestUrl = 'localhost:' . (string) (self::$port) . '/test';
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $requestUrl);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        curl_setopt($ch, \CURLOPT_URL, $requestUrl);
+        curl_setopt($ch, \CURLOPT_HEADER, false);
+        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, \CURLOPT_TIMEOUT, 2);
         curl_exec($ch);
 
-        $response_status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $response_status = curl_getinfo($ch, \CURLINFO_RESPONSE_CODE);
 
         curl_close($ch);
 
-        return $response_status == 200;
+        return $response_status === 200;
     }
 
     public static function setUpBeforeClass(): void
     {
-
         // Clean up the response json if there is one.
         if (file_exists(fullResponseFilePath)) {
             unlink(fullResponseFilePath);
@@ -64,20 +63,37 @@ class ClientTest extends TestCase
         // Router is the test server controller
         $routerPath = __DIR__ . '/TestServer.php';
 
-        $socket = \socket_create_listen(0);
-        \socket_getsockname($socket, $addr, self::$port);
-        \socket_close($socket);
+        // Getting a port that is available for use.
+        if (strtoupper(substr(\PHP_OS, 0, 3)) === 'WIN') {
+            //Windows
+            $socket = socket_create(\AF_INET, \SOCK_STREAM, \SOL_TCP);
+            socket_bind($socket, '0.0.0.0', 0);
+            socket_listen($socket);
+            socket_getsockname($socket, $addr, self::$port);
+            socket_close($socket);
+        } else {
+            //Linux
+            if (!$socket = socket_create_listen(0)) {
+                throw new \RuntimeException('Could not create socket.');
+            }
+            socket_getsockname($socket, $addr, self::$port);
+            socket_close($socket);
+        }
 
-        self::$process = new Process(['php', '-S', 'localhost:' . strval(self::$port), $routerPath]);
+        // Starting up the build-in server with the port we got above.
+        self::$process = new Process(['php', '-S', 'localhost:' . (string) (self::$port), $routerPath]);
         self::$process->setEnv(['RESPONSEJSON' => fullResponseFilePath]);
         self::$process->start();
 
         // Checking if the test server is up under 5 seconds.
         for ($half_seconds = 0; $half_seconds < 10; $half_seconds++) {
-            if (self::isWebsiteUp()) return;
+            if (self::isWebsiteUp()) {
+                return;
+            }
             usleep(500000); // wait half a second
         }
-        fwrite(STDERR, "Test server could not be started.");
+        fwrite(\STDERR, 'Test server could not be started.');
+
         exit(1);
     }
 
@@ -85,7 +101,9 @@ class ClientTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         // If the test server is used in a test, then stop it.
-        if (self::$process != null) self::$process->stop(0);
+        if (self::$process !== null) {
+            self::$process->stop(0);
+        }
     }
 
     public function test200(): void

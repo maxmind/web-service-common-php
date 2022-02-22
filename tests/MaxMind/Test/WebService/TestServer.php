@@ -4,7 +4,7 @@
 // It sends the response only once at startup that is sent to it through
 // STDIN. Then, it needs to be restarted again to get the STDIN again.
 
-if ($_SERVER['REQUEST_URI'] == '/test') { // For checking if the server is up
+if ($_SERVER['REQUEST_URI'] === '/test') { // For checking if the server is up
     exit(0);
 }
 
@@ -17,11 +17,10 @@ if (!file_exists($fullResponseFilePath)) {
 }
 
 // Consume a response from the response file
-$contents = file($fullResponseFilePath, FILE_IGNORE_NEW_LINES);
+$contents = file($fullResponseFilePath, \FILE_IGNORE_NEW_LINES);
 $responseJSON = array_shift($contents);
 $parsedJSON = json_decode($responseJSON);
-file_put_contents($fullResponseFilePath, implode(PHP_EOL, $contents));
-
+file_put_contents($fullResponseFilePath, implode(\PHP_EOL, $contents));
 
 // Set the content type
 if (property_exists($parsedJSON, 'contentType')) {

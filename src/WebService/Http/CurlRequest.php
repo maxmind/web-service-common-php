@@ -48,7 +48,7 @@ class CurlRequest implements Request
         return $this->execute($curl);
     }
 
-    public function get(string $body): array
+    public function get($body = ''): array
     {
         $curl = $this->createCurl();
 

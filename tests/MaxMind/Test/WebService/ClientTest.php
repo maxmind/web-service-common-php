@@ -463,7 +463,7 @@ class ClientTest extends TestCase
         );
 
         if ($httpMethod === 'get') {
-            return $client->get($service, $path, $requestContent);
+            return $client->get($service, $path);
         }
 
         return $client->post($service, $path, $requestContent);

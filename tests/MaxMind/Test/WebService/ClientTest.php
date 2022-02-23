@@ -53,9 +53,6 @@ class ClientTest extends TestCase
         $curlVersion = curl_version();
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
-        if (isset($options['userAgent'])) {
-            $userAgent = $options['userAgent'] . ' ' . $userAgent;
-        }
 
         $this->assertSame($response['HEADERS']['Host'], $host, 'received expected host');
         $this->assertSame($response['HEADERS']['User-Agent'], $userAgent, 'received expected user agent');
@@ -78,7 +75,7 @@ class ClientTest extends TestCase
         $response = $this->runRequestTestServer(
             'TestService',
             '/path',
-            ['test'],
+            [],
             $accountId,
             $licenseKey,
             [
@@ -91,19 +88,14 @@ class ClientTest extends TestCase
         $curlVersion = curl_version();
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
-        if (isset($options['userAgent'])) {
-            $userAgent = $options['userAgent'] . ' ' . $userAgent;
-        }
 
         $this->assertSame($response['HEADERS']['Host'], $host, 'received expected host');
         $this->assertSame($response['HEADERS']['User-Agent'], $userAgent, 'received expected user agent');
         $this->assertSame($response['HEADERS']['Accept'], 'application/json', 'received expected accept header');
         $this->assertSame($response['HEADERS']['Content-Type'], 'application/json', 'received expected content type');
         $this->assertSame($response['HEADERS']['Authorization'], 'Basic ' . base64_encode($accountId . ':' . $licenseKey), 'received expected authorization header');
-        $this->assertSame($response['HEADERS']['Content-Length'], '8', 'received expected content length');
 
         $this->assertSame($response['METHOD'], 'GET', 'received expected http method');
-        $this->assertSame($response['INPUT'], '["test"]', 'received expected body');
 
         $this->assertSame($response['REQUEST_URI'], '/path', 'received expected path');
     }

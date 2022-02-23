@@ -32,6 +32,82 @@ class ClientTest extends TestCase
         self::$server->stop();
     }
 
+    public function testCurlPost(): void
+    {
+        $accountId = 10;
+        $licenseKey = '0123456789';
+        $host = self::$server->getHost() . ':' . self::$server->getPort();
+        $response = $this->runRequestTestServer(
+            'TestService',
+            '/path',
+            ['test'],
+            $accountId,
+            $licenseKey,
+            [
+                'host' => $host,
+                'protocol' => 'http://',
+            ],
+            'post'
+        );
+
+        $curlVersion = curl_version();
+        $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
+            . ' curl/' . $curlVersion['version'];
+        if (isset($options['userAgent'])) {
+            $userAgent = $options['userAgent'] . ' ' . $userAgent;
+        }
+
+        $this->assertSame($response['HEADERS']['Host'], $host, 'received expected host');
+        $this->assertSame($response['HEADERS']['User-Agent'], $userAgent, 'received expected user agent');
+        $this->assertSame($response['HEADERS']['Accept'], 'application/json', 'received expected accept header');
+        $this->assertSame($response['HEADERS']['Content-Type'], 'application/json', 'received expected content type');
+        $this->assertSame($response['HEADERS']['Authorization'], 'Basic ' . base64_encode($accountId . ':' . $licenseKey), 'received expected authorization header');
+        $this->assertSame($response['HEADERS']['Content-Length'], '8', 'received expected content length');
+
+        $this->assertSame($response['METHOD'], 'POST', 'received expected http method');
+        $this->assertSame($response['INPUT'], '["test"]', 'received expected body');
+
+        $this->assertSame($response['REQUEST_URI'], '/path', 'received expected path');
+    }
+
+    public function testCurlGet(): void
+    {
+        $accountId = 10;
+        $licenseKey = '0123456789';
+        $host = self::$server->getHost() . ':' . self::$server->getPort();
+        $response = $this->runRequestTestServer(
+            'TestService',
+            '/path',
+            ['test'],
+            $accountId,
+            $licenseKey,
+            [
+                'host' => $host,
+                'protocol' => 'http://',
+            ],
+            'get'
+        );
+
+        $curlVersion = curl_version();
+        $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
+            . ' curl/' . $curlVersion['version'];
+        if (isset($options['userAgent'])) {
+            $userAgent = $options['userAgent'] . ' ' . $userAgent;
+        }
+
+        $this->assertSame($response['HEADERS']['Host'], $host, 'received expected host');
+        $this->assertSame($response['HEADERS']['User-Agent'], $userAgent, 'received expected user agent');
+        $this->assertSame($response['HEADERS']['Accept'], 'application/json', 'received expected accept header');
+        $this->assertSame($response['HEADERS']['Content-Type'], 'application/json', 'received expected content type');
+        $this->assertSame($response['HEADERS']['Authorization'], 'Basic ' . base64_encode($accountId . ':' . $licenseKey), 'received expected authorization header');
+        $this->assertSame($response['HEADERS']['Content-Length'], '8', 'received expected content length');
+
+        $this->assertSame($response['METHOD'], 'GET', 'received expected http method');
+        $this->assertSame($response['INPUT'], '["test"]', 'received expected body');
+
+        $this->assertSame($response['REQUEST_URI'], '/path', 'received expected path');
+    }
+
     // Sending a post request
     public function test200Post(): void
     {

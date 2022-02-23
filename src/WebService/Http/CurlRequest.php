@@ -48,11 +48,14 @@ class CurlRequest implements Request
         return $this->execute($curl);
     }
 
-    public function get(): array
+    public function get(string $body): array
     {
         $curl = $this->createCurl();
 
         curl_setopt($curl, \CURLOPT_HTTPGET, true);
+        // Sending the body while keeping the request a GET
+        curl_setopt($curl, \CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($curl, \CURLOPT_POSTFIELDS, $body);
 
         return $this->execute($curl);
     }

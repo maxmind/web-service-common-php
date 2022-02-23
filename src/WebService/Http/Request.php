@@ -15,5 +15,5 @@ interface Request
 
     public function post(string $body): array;
 
-    public function get(): array;
+    public function get(string $body): array;
 }

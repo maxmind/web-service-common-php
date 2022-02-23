@@ -184,7 +184,7 @@ class Client
             ['Content-Type: application/json']
         );
 
-        [$statusCode, $contentType, $responseBody] = $request->get();
+        [$statusCode, $contentType, $responseBody] = $request->get($requestBody);
 
         return $this->handleResponse(
             $statusCode,

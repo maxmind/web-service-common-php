@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace MaxMind\Test\WebService;
 
 use Composer\CaBundle\CaBundle;
+use donatj\MockWebServer\MockWebServer;
+use donatj\MockWebServer\Response;
 use MaxMind\WebService\Client;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
-
-// This is the tmp file that the responses are stacks are stored.
-\define('responseFileName', '/web-service-common-php-response.json');
-\define('fullResponseFilePath', sys_get_temp_dir() . responseFileName);
 
 /**
  * @coversNothing
@@ -20,104 +17,19 @@ use Symfony\Component\Process\Process;
  */
 class ClientTest extends TestCase
 {
-    /** @var Process */
-    public static $process;
-
-    /** @var int */
-    public static $port;
-
-    // Sets up the response that the test server is going to return.
-    /**
-     * addResponseInQueue.
-     *
-     * @param string $responseJSON the body that is going to be added into the queue
-     * @param int    $n            the number of times that it is going to be the response
-     */
-    public static function addResponseInQueue(string $responseJSON, $n = 1): void
-    {
-        if (!$fh = fopen(fullResponseFilePath, 'wb')) {
-            throw new \RuntimeException('Could not open tmp response json file.');
-        }
-        for ($n; $n > 0; $n--) {
-            fwrite($fh, $responseJSON . \PHP_EOL);
-        }
-        fclose($fh);
-    }
-
-    // Makes sure the built-in server is up by querying
-    // `/test` endpoint of the TestServer.
-    /**
-     * @return bool
-     */
-    public static function isWebsiteUp()
-    {
-        $requestUrl = 'localhost:' . (string) (self::$port) . '/test';
-
-        $ch = curl_init();
-
-        curl_setopt($ch, \CURLOPT_URL, $requestUrl);
-        curl_setopt($ch, \CURLOPT_HEADER, false);
-        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, \CURLOPT_TIMEOUT, 2);
-        curl_exec($ch);
-
-        $response_status = curl_getinfo($ch, \CURLINFO_RESPONSE_CODE);
-
-        curl_close($ch);
-
-        return $response_status === 200;
-    }
+    /** @var MockWebServer */
+    protected static $server;
 
     public static function setUpBeforeClass(): void
     {
-        // Clean up the response json if there is one.
-        if (file_exists(fullResponseFilePath)) {
-            unlink(fullResponseFilePath);
-        }
-
-        // Router is the test server controller
-        $routerPath = __DIR__ . '/TestServer.php';
-
-        // Getting a port that is available for use.
-        if (strtoupper(substr(\PHP_OS, 0, 3)) === 'WIN') {
-            //Windows
-            $socket = socket_create(\AF_INET, \SOCK_STREAM, \SOL_TCP);
-            socket_bind($socket, '0.0.0.0', 0);
-            socket_listen($socket);
-            socket_getsockname($socket, $addr, self::$port);
-            socket_close($socket);
-        } else {
-            //Linux
-            if (!$socket = socket_create_listen(0)) {
-                throw new \RuntimeException('Could not create socket.');
-            }
-            socket_getsockname($socket, $addr, self::$port);
-            socket_close($socket);
-        }
-
-        // Starting up the build-in server with the port we got above.
-        self::$process = new Process(['php', '-S', 'localhost:' . (string) (self::$port), $routerPath]);
-        self::$process->setEnv(['RESPONSEJSON' => fullResponseFilePath]);
-        self::$process->start();
-
-        // Checking if the test server is up under 5 seconds.
-        for ($half_seconds = 0; $half_seconds < 10; $half_seconds++) {
-            if (self::isWebsiteUp()) {
-                return;
-            }
-            usleep(500000); // wait half a second
-        }
-
-        throw new \RuntimeException('Test server could not be started.');
+        self::$server = new MockWebServer();
+        self::$server->start();
     }
 
-    // Stop the test server after the tests are ran
     public static function tearDownAfterClass(): void
     {
-        // If the test server is used in a test, then stop it.
-        if (self::$process !== null) {
-            self::$process->stop(0);
-        }
+        // stopping the web server during tear down allows us to reuse the port for later tests
+        self::$server->stop();
     }
 
     // Sending a post request
@@ -217,15 +129,9 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(200, 'application/json', '{', 'get');
     }
 
-    public function test204PostWithResponseBody(): void
-    {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
-        $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
-
-        $this->withResponse(204, 'application/json', 'non-empty response body');
-    }
-
-    public function test204GetWithResponseBody(): void
+    // We can't test this with the test server because
+    // the built-in php server doesn't let us send a body when the http status is 204.
+    public function test204WithResponseBody(): void
     {
         $this->expectException(\MaxMind\Exception\WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
@@ -456,13 +362,7 @@ class ClientTest extends TestCase
     // This version is used for when we want to test with an actual server.
     private function withResponseTestServer(int $statusCode, string $contentType, string $body, string $httpMethod): ?array
     {
-        // Set up the test server
-        $response = [
-            'status' => $statusCode,
-            'body' => $body,
-            'contentType' => $contentType,
-        ];
-        self::addResponseInQueue(json_encode($response));
+        self::$server->setResponseOfPath('/path', new Response($body, ['Content-Type: ' . $contentType], $statusCode));
 
         return $this->runRequestTestServer(
             'TestService',
@@ -471,7 +371,7 @@ class ClientTest extends TestCase
             10,
             '0123456789',
             [
-                'host' => 'localhost:' . self::$port,
+                'host' => self::$server->getHost() . ':' . self::$server->getPort(),
                 'protocol' => 'http://',
             ],
             $httpMethod

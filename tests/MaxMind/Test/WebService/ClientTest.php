@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MaxMind\Test\WebService;
 
+putenv('XDEBUG_CONFIG=idekey=mock');
+
 use Composer\CaBundle\CaBundle;
 use donatj\MockWebServer\MockWebServer;
 use donatj\MockWebServer\Response;

@@ -14,6 +14,7 @@ use Symfony\Component\Process\Process;
 // This is the tmp file that the responses are stacks are stored.
 \define('responseFileName', '/web-service-common-php-response.json');
 \define('fullResponseFilePath', sys_get_temp_dir() . responseFileName);
+
 /**
  * @coversNothing
  *
@@ -151,7 +152,7 @@ class ClientTest extends TestCase
         $this->assertSame($response['_SERVER']['CONTENT_LENGTH'], '8', 'received expected content length');
         $this->assertSame($response['_SERVER']['REQUEST_METHOD'], 'POST', 'received expected http method');
         $this->assertSame($response['_SERVER']['REQUEST_URI'], '/mirror', 'received expected path');
-        
+
         $this->assertSame($response['INPUT'], '["test"]', 'received expected body');
     }
 

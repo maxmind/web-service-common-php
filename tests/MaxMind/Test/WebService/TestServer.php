@@ -1,8 +1,8 @@
 <?php
 
 // This program is used for testing the unit tests found in this package.
-// It sends the response only once at startup that is sent to it through
-// STDIN. Then, it needs to be restarted again to get the STDIN again.
+// It is a test server that is ran by ClientTest.php as a seperate process.
+// It uses the built-in PHP server.
 
 if ($_SERVER['REQUEST_URI'] === '/test') { // For checking if the server is up
     exit(0);

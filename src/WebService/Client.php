@@ -289,7 +289,7 @@ class Client
      */
     private function urlFor(string $path): string
     {
-        return ($this->useHttps ? "https://" : "http://") . $this->host . $path;
+        return ($this->useHttps ? 'https://' : 'http://') . $this->host . $path;
     }
 
     /**

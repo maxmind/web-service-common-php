@@ -171,7 +171,6 @@ class ClientTest extends TestCase
         $this->assertSame($response['_SERVER']['HTTP_HOST'], $host, 'received expected host');
         $this->assertSame($response['_SERVER']['HTTP_USER_AGENT'], $userAgent, 'received expected user agent');
         $this->assertSame($response['_SERVER']['HTTP_ACCEPT'], 'application/json', 'received expected accept header');
-        $this->assertSame($response['_SERVER']['CONTENT_TYPE'], 'application/json', 'received expected content type');
         $this->assertSame($response['_SERVER']['HTTP_AUTHORIZATION'], 'Basic ' . base64_encode($accountId . ':' . $licenseKey), 'received expected authorization header');
         $this->assertSame($response['_SERVER']['REQUEST_METHOD'], 'GET', 'received expected http method');
         $this->assertSame($response['_SERVER']['REQUEST_URI'], '/mirror', 'received expected path');

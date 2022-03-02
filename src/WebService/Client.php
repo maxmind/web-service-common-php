@@ -173,8 +173,7 @@ class Client
     public function get(string $service, string $path): ?array
     {
         $request = $this->createRequest(
-            $path,
-            ['Content-Type: application/json']
+            $path
         );
 
         [$statusCode, $contentType, $responseBody] = $request->get();

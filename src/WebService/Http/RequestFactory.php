@@ -27,7 +27,10 @@ class RequestFactory
         }
     }
 
-    private function getCurlHandle(): \CurlHandle
+    /**
+     * @return \CurlHandle
+     */
+    private function getCurlHandle()
     {
         if (empty($this->ch)) {
             $this->ch = curl_init();

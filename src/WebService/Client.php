@@ -42,6 +42,11 @@ class Client
     private $host = 'api.maxmind.com';
 
     /**
+     * @var bool
+     */
+    private $useHttps = true;
+
+    /**
      * @var RequestFactory
      */
     private $httpRequestFactory;
@@ -76,6 +81,7 @@ class Client
      * @param string $licenseKey your MaxMind license key
      * @param array  $options    an array of options. Possible keys:
      *                           * `host` - The host to use when connecting to the web service.
+     *                           * `useHttps` - A boolean flag for sending the request via https.(True by default)
      *                           * `userAgent` - The prefix of the User-Agent to use in the request.
      *                           * `caBundle` - The bundle of CA root certificates to use in the request.
      *                           * `connectTimeout` - The connect timeout to use for the request.
@@ -97,6 +103,9 @@ class Client
 
         if (isset($options['host'])) {
             $this->host = $options['host'];
+        }
+        if (isset($options['useHttps'])) {
+            $this->useHttps = $options['useHttps'];
         }
         if (isset($options['userAgent'])) {
             $this->userAgentPrefix = $options['userAgent'] . ' ';
@@ -163,7 +172,9 @@ class Client
 
     public function get(string $service, string $path): ?array
     {
-        $request = $this->createRequest($path);
+        $request = $this->createRequest(
+            $path
+        );
 
         [$statusCode, $contentType, $responseBody] = $request->get();
 
@@ -277,7 +288,7 @@ class Client
      */
     private function urlFor(string $path): string
     {
-        return 'https://' . $this->host . $path;
+        return ($this->useHttps ? 'https://' : 'http://') . $this->host . $path;
     }
 
     /**

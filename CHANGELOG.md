@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.9.0
+0.9.0 (2022-03-28)
 ------------------
 
 * Improved internal type hint usage.

@@ -37,7 +37,7 @@ if (property_exists($parsedJSON, 'contentType')) {
 
 // Return the http status
 if (property_exists($parsedJSON, 'status')) {
-    http_response_code((int) ($parsedJSON->status));
+    http_response_code((int) $parsedJSON->status);
 }
 
 // Return body

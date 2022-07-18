@@ -53,7 +53,7 @@ class ClientTest extends TestCase
      */
     public static function isWebsiteUp()
     {
-        $requestUrl = 'localhost:' . (string) (self::$port) . '/test';
+        $requestUrl = 'localhost:' . (string) self::$port . '/test';
 
         $ch = curl_init();
 
@@ -88,7 +88,7 @@ class ClientTest extends TestCase
         socket_close($socket);
 
         // Starting up the build-in server with the port we got above.
-        self::$process = new Process(['php', '-S', 'localhost:' . (string) (self::$port), $routerPath]);
+        self::$process = new Process(['php', '-S', 'localhost:' . (string) self::$port, $routerPath]);
         self::$process->setEnv(['RESPONSEJSON' => fullResponseFilePath]);
         self::$process->start();
 

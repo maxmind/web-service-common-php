@@ -129,7 +129,7 @@ class CurlRequest implements Request
             // indicates server did not send valid Content-Type: header" for
             // CURLINFO_CONTENT_TYPE. However, it will return FALSE if no header
             // is set. To keep our types simple, we return null in this case.
-            ($contentType === false ? null : $contentType),
+            $contentType === false ? null : $contentType,
             $body,
         ];
     }

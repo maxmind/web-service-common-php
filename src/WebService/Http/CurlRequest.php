@@ -89,7 +89,12 @@ class CurlRequest implements Request
         } else {
             $opts[\CURLOPT_CONNECTTIMEOUT] = ceil($connectTimeout);
         }
-
+        // the CURLOPT_TCP_NODELAY is available for versions compiled with libcurl 7.11.2 or greater
+        // disable TCP's Nagle algorithm, which tries to minimize the number of small packets on the network
+        if (\defined('CURLOPT_TCP_NODELAY')) {
+            $opts[\CURLOPT_TCP_NODELAY] = true;
+        }
+        
         $timeout = $this->options['timeout'];
         if (\defined('CURLOPT_TIMEOUT_MS')) {
             $opts[\CURLOPT_TIMEOUT_MS] = ceil($timeout * 1000);

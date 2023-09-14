@@ -16,7 +16,7 @@ style guidelines. Please include unit tests whenever possible.
 
 ## Versioning ##
 
-This API uses [Semantic Versioning](http://semver.org/).
+This API uses [Semantic Versioning](https://semver.org/).
 
 ## Copyright and License ##
 

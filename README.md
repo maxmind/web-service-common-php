@@ -16,10 +16,10 @@ style guidelines. Please include unit tests whenever possible.
 
 ## Versioning ##
 
-This API uses [Semantic Versioning](http://semver.org/).
+This API uses [Semantic Versioning](https://semver.org/).
 
 ## Copyright and License ##
 
-This software is Copyright (c) 2015-2020 by MaxMind, Inc.
+This software is Copyright (c) 2015-2023 by MaxMind, Inc.
 
 This is free software, licensed under the Apache License, Version 2.0.

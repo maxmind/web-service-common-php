@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaxMind\Test\WebService\Http;
 
+use MaxMind\Exception\HttpException;
 use MaxMind\WebService\Http\CurlRequest;
 use PHPUnit\Framework\TestCase;
 
@@ -40,7 +41,7 @@ class CurlRequestTest extends TestCase
 
     public function testGet(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');
 
         $cr = new CurlRequest(
@@ -53,7 +54,7 @@ class CurlRequestTest extends TestCase
 
     public function testPost(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessageMatches('/^cURL error.*invalid.host/');
 
         $cr = new CurlRequest(

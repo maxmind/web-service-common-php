@@ -7,7 +7,14 @@ namespace MaxMind\Test\WebService;
 putenv('XDEBUG_CONFIG=idekey=mock');
 
 use Composer\CaBundle\CaBundle;
+use MaxMind\Exception\AuthenticationException;
+use MaxMind\Exception\HttpException;
+use MaxMind\Exception\InsufficientFundsException;
+use MaxMind\Exception\InvalidRequestException;
+use MaxMind\Exception\PermissionRequiredException;
+use MaxMind\Exception\WebServiceException;
 use MaxMind\WebService\Client;
+use MaxMind\WebService\Http\Request;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
@@ -259,7 +266,7 @@ class ClientTest extends TestCase
 
     public function test200PostWithInvalidJson(): void
     {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectException(WebServiceException::class);
         $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
 
         $this->withResponseTestServer(200, 'application/json', '{', 'post');
@@ -267,7 +274,7 @@ class ClientTest extends TestCase
 
     public function test200GetWithInvalidJson(): void
     {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectException(WebServiceException::class);
         $this->expectExceptionMessage('Received a 200 response for TestService but could not decode the response as JSON: Syntax error. Body: {');
 
         $this->withResponseTestServer(200, 'application/json', '{', 'get');
@@ -277,7 +284,7 @@ class ClientTest extends TestCase
     // the built-in php server doesn't let us send a body when the http status is 204.
     public function test204WithResponseBody(): void
     {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectException(WebServiceException::class);
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
         $this->withResponse(204, 'application/json', 'non-empty response body');
@@ -285,7 +292,7 @@ class ClientTest extends TestCase
 
     public function testGetInsufficientFunds(): void
     {
-        $this->expectException(\MaxMind\Exception\InsufficientFundsException::class);
+        $this->expectException(InsufficientFundsException::class);
         $this->expectExceptionMessage('out of credit');
 
         $this->withResponseTestServer(
@@ -298,7 +305,7 @@ class ClientTest extends TestCase
 
     public function testPostInsufficientFunds(): void
     {
-        $this->expectException(\MaxMind\Exception\InsufficientFundsException::class);
+        $this->expectException(InsufficientFundsException::class);
         $this->expectExceptionMessage('out of credit');
 
         $this->withResponseTestServer(
@@ -314,7 +321,7 @@ class ClientTest extends TestCase
      */
     public function testPostInvalidAuth(string $code): void
     {
-        $this->expectException(\MaxMind\Exception\AuthenticationException::class);
+        $this->expectException(AuthenticationException::class);
         $this->expectExceptionMessage('Invalid auth');
 
         $this->withResponseTestServer(
@@ -330,7 +337,7 @@ class ClientTest extends TestCase
      */
     public function testGetInvalidAuth(string $code): void
     {
-        $this->expectException(\MaxMind\Exception\AuthenticationException::class);
+        $this->expectException(AuthenticationException::class);
         $this->expectExceptionMessage('Invalid auth');
 
         $this->withResponseTestServer(
@@ -355,7 +362,7 @@ class ClientTest extends TestCase
 
     public function testGetPermissionRequired(): void
     {
-        $this->expectException(\MaxMind\Exception\PermissionRequiredException::class);
+        $this->expectException(PermissionRequiredException::class);
         $this->expectExceptionMessage('Permission required');
 
         $this->withResponseTestServer(
@@ -368,7 +375,7 @@ class ClientTest extends TestCase
 
     public function testPostPermissionRequired(): void
     {
-        $this->expectException(\MaxMind\Exception\PermissionRequiredException::class);
+        $this->expectException(PermissionRequiredException::class);
         $this->expectExceptionMessage('Permission required');
 
         $this->withResponseTestServer(
@@ -381,7 +388,7 @@ class ClientTest extends TestCase
 
     public function testPostInvalidRequest(): void
     {
-        $this->expectException(\MaxMind\Exception\InvalidRequestException::class);
+        $this->expectException(InvalidRequestException::class);
         $this->expectExceptionMessage('IP invalid');
 
         $this->withResponseTestServer(
@@ -394,7 +401,7 @@ class ClientTest extends TestCase
 
     public function testGetInvalidRequest(): void
     {
-        $this->expectException(\MaxMind\Exception\InvalidRequestException::class);
+        $this->expectException(InvalidRequestException::class);
         $this->expectExceptionMessage('IP invalid');
 
         $this->withResponseTestServer(
@@ -407,7 +414,7 @@ class ClientTest extends TestCase
 
     public function testPost400WithInvalidJson(): void
     {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectException(WebServiceException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService but could not decode the response as JSON: Syntax error. Body: {"blah"}');
 
         $this->withResponseTestServer(400, 'application/json', '{"blah"}', 'post');
@@ -415,7 +422,7 @@ class ClientTest extends TestCase
 
     public function testGet400WithInvalidJson(): void
     {
-        $this->expectException(\MaxMind\Exception\WebServiceException::class);
+        $this->expectException(WebServiceException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService but could not decode the response as JSON: Syntax error. Body: {"blah"}');
 
         $this->withResponseTestServer(400, 'application/json', '{"blah"}', 'get');
@@ -423,7 +430,7 @@ class ClientTest extends TestCase
 
     public function testPost400WithNoBody(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with no body');
 
         $this->withResponseTestServer(400, 'application/json', '', 'post');
@@ -431,7 +438,7 @@ class ClientTest extends TestCase
 
     public function testGet400WithNoBody(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with no body');
 
         $this->withResponseTestServer(400, 'application/json', '', 'get');
@@ -439,7 +446,7 @@ class ClientTest extends TestCase
 
     public function testPost400WithUnexpectedContentType(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with the following body: text');
 
         $this->withResponseTestServer(400, 'text/plain', 'text', 'post');
@@ -447,7 +454,7 @@ class ClientTest extends TestCase
 
     public function testGet400WithUnexpectedContentType(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a 400 error for TestService with the following body: text');
 
         $this->withResponseTestServer(400, 'text/plain', 'text', 'get');
@@ -455,7 +462,7 @@ class ClientTest extends TestCase
 
     public function testPost400WithUnexpectedJson(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Error response contains JSON but it does not specify code or error keys: {"not":"expected"}');
 
         $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}', 'post');
@@ -463,7 +470,7 @@ class ClientTest extends TestCase
 
     public function testGet400WithUnexpectedJson(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Error response contains JSON but it does not specify code or error keys: {"not":"expected"}');
 
         $this->withResponseTestServer(400, 'application/json', '{"not":"expected"}', 'get');
@@ -471,7 +478,7 @@ class ClientTest extends TestCase
 
     public function testPost300(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received an unexpected HTTP status (300) for TestService');
 
         $this->withResponseTestServer(300, 'application/json', '', 'post');
@@ -479,7 +486,7 @@ class ClientTest extends TestCase
 
     public function testGet300(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received an unexpected HTTP status (300) for TestService');
 
         $this->withResponseTestServer(300, 'application/json', '', 'get');
@@ -487,7 +494,7 @@ class ClientTest extends TestCase
 
     public function testPost500(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a server error (500) for TestService');
 
         $this->withResponseTestServer(500, 'application/json', '', 'post');
@@ -495,7 +502,7 @@ class ClientTest extends TestCase
 
     public function testGet500(): void
     {
-        $this->expectException(\MaxMind\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Received a server error (500) for TestService');
 
         $this->withResponseTestServer(500, 'application/json', '', 'get');
@@ -582,7 +589,7 @@ class ClientTest extends TestCase
         $url = 'https://' . $host . $path;
 
         $stub = $this->createMock(
-            \MaxMind\WebService\Http\Request::class
+            Request::class
         );
 
         $stub->expects($this->once())

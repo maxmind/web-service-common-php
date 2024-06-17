@@ -598,7 +598,7 @@ class ClientTest extends TestCase
             ->willReturn([$statusCode, $contentType, $responseBody]);
 
         $factory = $this->getMockBuilder(
-            'MaxMind\\WebService\\Http\\RequestFactory'
+            'MaxMind\WebService\Http\RequestFactory'
         )->getMock();
 
         $headers = [

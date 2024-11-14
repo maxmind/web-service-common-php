@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 class CurlRequestTest extends TestCase
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $options;
 

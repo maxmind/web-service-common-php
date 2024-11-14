@@ -348,6 +348,9 @@ class ClientTest extends TestCase
         );
     }
 
+    /**
+     * @return array<int, list<string>>
+     */
     public function invalidAuthCodes(): array
     {
         return [
@@ -508,9 +511,13 @@ class ClientTest extends TestCase
         $this->withResponseTestServer(500, 'application/json', '', 'get');
     }
 
-    // Convenience method when you don't care about the request
-    // It runs the request through the test server.
-    // This version is used for when we want to test with an actual server.
+    /**
+     * Convenience method when you don't care about the request
+     * It runs the request through the test server.
+     * This version is used for when we want to test with an actual server.
+     *
+     * @return array<mixed>|null
+     */
     private function withResponseTestServer(int $statusCode, string $contentType, string $body, string $httpMethod): ?array
     {
         // Set up the test server
@@ -535,7 +542,14 @@ class ClientTest extends TestCase
         );
     }
 
-    // runs the request through the test server
+    /**
+     * Runs the request through the test server.
+     *
+     * @param array<mixed>         $requestContent
+     * @param array<string, mixed> $options
+     *
+     * @return array<mixed>|null
+     */
     private function runRequestTestServer(
         string $service,
         string $path,
@@ -558,7 +572,11 @@ class ClientTest extends TestCase
         return $client->post($service, $path, $requestContent);
     }
 
-    // convenience method when you don't care about the request
+    /**
+     * Convenience method when you don't care about the request.
+     *
+     * @return array<mixed>|null
+     */
     private function withResponse(int $statusCode, string $contentType, string $body): ?array
     {
         return $this->runRequest(
@@ -571,8 +589,15 @@ class ClientTest extends TestCase
         );
     }
 
-    // The other version of withResponse exists because some responses are not supported
-    // by the built-in php server, such as sending a body while having a status 204(No-content).
+    /**
+     * The other version of withResponse exists because some responses are not supported
+     * by the built-in php server, such as sending a body while having a status 204(No-content).
+     *
+     * @param array<mixed>         $requestContent
+     * @param array<string, mixed> $options
+     *
+     * @return array<mixed>|null
+     */
     private function runRequest(
         string $service,
         string $path,

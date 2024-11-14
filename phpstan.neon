@@ -3,5 +3,4 @@ parameters:
     paths:
         - src
         - tests
-    checkMissingIterableValueType: false
 

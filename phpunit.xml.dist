@@ -9,7 +9,7 @@
     </report>
   </coverage>
   <testsuites>
-    <testsuite name="minFraud Test Suite">
+    <testsuite name="Test Suite">
       <directory suffix="Test.php">./tests/MaxMind/Test/</directory>
     </testsuite>
   </testsuites>

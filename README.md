@@ -5,7 +5,7 @@ shared code between MaxMind's various web service client APIs.
 
 ## Requirements  ##
 
-The library requires PHP 7.2 or greater.
+The library requires PHP 8.1 or greater.
 
 There are several other dependencies as defined in the `composer.json` file.
 
@@ -20,6 +20,6 @@ This API uses [Semantic Versioning](https://semver.org/).
 
 ## Copyright and License ##
 
-This software is Copyright (c) 2015-2023 by MaxMind, Inc.
+This software is Copyright (c) 2015-2024 by MaxMind, Inc.
 
 This is free software, licensed under the Apache License, Version 2.0.

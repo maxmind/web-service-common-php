@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.10.0 (2024-11-14)
+-------------------
+
+* PHP 8.1 or greater is now required.
+* Type hints for PHPStan have been improved.
+
 0.9.0 (2022-03-28)
 ------------------
 

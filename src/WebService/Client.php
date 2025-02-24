@@ -111,8 +111,8 @@ class Client
             $this->userAgentPrefix = $options['userAgent'] . ' ';
         }
 
-        $this->caBundle = isset($options['caBundle']) ?
-            $this->caBundle = $options['caBundle'] : $this->getCaBundle();
+        $this->caBundle = isset($options['caBundle'])
+            ? $this->caBundle = $options['caBundle'] : $this->getCaBundle();
 
         if (isset($options['connectTimeout'])) {
             $this->connectTimeout = $options['connectTimeout'];
@@ -194,8 +194,8 @@ class Client
     {
         $curlVersion = curl_version();
 
-        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION .
-           ' curl/' . $curlVersion['version'];
+        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
+           . ' curl/' . $curlVersion['version'];
     }
 
     /**
@@ -325,8 +325,8 @@ class Client
         }
         if ($contentType === null || !strstr($contentType, 'json')) {
             throw new HttpException(
-                "Received a $statusCode error for $service with " .
-                'the following body: ' . $body,
+                "Received a $statusCode error for $service with "
+                . 'the following body: ' . $body,
                 $statusCode,
                 $this->urlFor($path)
             );
@@ -335,8 +335,8 @@ class Client
         $message = json_decode($body, true);
         if ($message === null) {
             throw new HttpException(
-                "Received a $statusCode error for $service but could " .
-                'not decode the response as JSON: '
+                "Received a $statusCode error for $service but could "
+                . 'not decode the response as JSON: '
                 . $this->jsonErrorDescription() . ' Body: ' . $body,
                 $statusCode,
                 $this->urlFor($path)
@@ -345,8 +345,8 @@ class Client
 
         if (!isset($message['code']) || !isset($message['error'])) {
             throw new HttpException(
-                'Error response contains JSON but it does not ' .
-                'specify code or error keys: ' . $body,
+                'Error response contains JSON but it does not '
+                . 'specify code or error keys: ' . $body,
                 $statusCode,
                 $this->urlFor($path)
             );
@@ -452,8 +452,8 @@ class Client
     private function handleUnexpectedStatus(int $statusCode, string $service, string $path): void
     {
         throw new HttpException(
-            'Received an unexpected HTTP status ' .
-            "($statusCode) for $service",
+            'Received an unexpected HTTP status '
+            . "($statusCode) for $service",
             $statusCode,
             $this->urlFor($path)
         );
@@ -477,8 +477,8 @@ class Client
         if ($statusCode === 204) {
             if ($body !== null && $body !== '') {
                 throw new WebServiceException(
-                    "Received a 204 response for $service along with an " .
-                    "unexpected HTTP body: $body"
+                    "Received a 204 response for $service along with an "
+                    . "unexpected HTTP body: $body"
                 );
             }
 
@@ -488,16 +488,16 @@ class Client
         // A 200 should have a valid JSON body
         if ($body === null || $body === '') {
             throw new WebServiceException(
-                "Received a 200 response for $service but did not " .
-                'receive a HTTP body.'
+                "Received a 200 response for $service but did not "
+                . 'receive a HTTP body.'
             );
         }
 
         $decodedContent = json_decode($body, true);
         if ($decodedContent === null) {
             throw new WebServiceException(
-                "Received a 200 response for $service but could " .
-                'not decode the response as JSON: '
+                "Received a 200 response for $service but could "
+                . 'not decode the response as JSON: '
                 . $this->jsonErrorDescription() . ' Body: ' . $body
             );
         }

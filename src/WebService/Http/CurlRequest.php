@@ -24,12 +24,28 @@ class CurlRequest implements Request
     private $url;
 
     /**
-     * @var array<string, mixed>
+     * @var array{
+     *     caBundle?: string,
+     *     connectTimeout: float|int,
+     *     curlHandle: \CurlHandle,
+     *     headers: array<int, string>,
+     *     proxy: string|null,
+     *     timeout: float|int,
+     *     userAgent: string
+     * }
      */
     private $options;
 
     /**
-     * @param array<string, mixed> $options
+     * @param array{
+     *     caBundle?: string,
+     *     connectTimeout: float|int,
+     *     curlHandle: \CurlHandle,
+     *     headers: array<int, string>,
+     *     proxy: string|null,
+     *     timeout: float|int,
+     *     userAgent: string
+     * } $options
      */
     public function __construct(string $url, array $options)
     {

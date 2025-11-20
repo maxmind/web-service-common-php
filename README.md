@@ -20,6 +20,6 @@ This API uses [Semantic Versioning](https://semver.org/).
 
 ## Copyright and License ##
 
-This software is Copyright (c) 2015-2024 by MaxMind, Inc.
+This software is Copyright (c) 2015-2025 by MaxMind, Inc.
 
 This is free software, licensed under the Apache License, Version 2.0.

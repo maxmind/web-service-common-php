@@ -6,26 +6,26 @@ set -eu -o pipefail
 # before making any changes to the repository
 
 check_command() {
-    if ! command -v "$1" &> /dev/null; then
+    if ! command -v "$1" &>/dev/null; then
         echo "Error: $1 is not installed or not in PATH"
         exit 1
     fi
 }
 
 # Verify gh CLI is authenticated
-if ! gh auth status &> /dev/null; then
+if ! gh auth status &>/dev/null; then
     echo "Error: gh CLI is not authenticated. Run 'gh auth login' first."
     exit 1
 fi
 
 # Verify we can access this repository via gh
-if ! gh repo view --json name &> /dev/null; then
+if ! gh repo view --json name &>/dev/null; then
     echo "Error: Cannot access repository via gh. Check your authentication and repository access."
     exit 1
 fi
 
 # Verify git can connect to the remote (catches SSH key issues, etc.)
-if ! git ls-remote origin &> /dev/null; then
+if ! git ls-remote origin &>/dev/null; then
     echo "Error: Cannot connect to git remote. Check your git credentials/SSH keys."
     exit 1
 fi
@@ -53,7 +53,7 @@ fi
 changelog=$(cat CHANGELOG.md)
 
 regex='
-([0-9]+\.[0-9]+\.[0-9]+) \(([0-9]{4}-[0-9]{2}-[0-9]{2})\)
+([0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?) \(([0-9]{4}-[0-9]{2}-[0-9]{2})\)
 -*
 
 ((.|
@@ -61,15 +61,15 @@ regex='
 '
 
 if [[ ! $changelog =~ $regex ]]; then
-      echo "Could not find date line in change log!"
-      exit 1
+    echo "Could not find date line in change log!"
+    exit 1
 fi
 
 version="${BASH_REMATCH[1]}"
-date="${BASH_REMATCH[2]}"
-notes="$(echo "${BASH_REMATCH[3]}" | sed -n -E '/^[0-9]+\.[0-9]+\.[0-9]+/,$!p')"
+date="${BASH_REMATCH[3]}"
+notes="$(echo "${BASH_REMATCH[4]}" | sed -n -E '/^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?/,$!p')"
 
-if [[ "$date" !=  $(date +"%Y-%m-%d") ]]; then
+if [[ "$date" != "$(date +"%Y-%m-%d")" ]]; then
     echo "$date is not today!"
     exit 1
 fi
@@ -89,7 +89,7 @@ php composer.phar update
 echo "Release notes for $tag:"
 echo "$notes"
 
-read -e -p "Commit changes and push to origin? " should_push
+read -r -e -p "Commit changes and push to origin? " should_push
 
 if [ "$should_push" != "y" ]; then
     echo "Aborting"
@@ -99,5 +99,3 @@ fi
 git push
 
 gh release create --target "$(git branch --show-current)" -t "$version" -n "$notes" "$tag"
-
-git push --tags

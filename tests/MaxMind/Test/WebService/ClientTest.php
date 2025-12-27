@@ -72,8 +72,6 @@ class ClientTest extends TestCase
 
         $response_status = curl_getinfo($ch, \CURLINFO_RESPONSE_CODE);
 
-        curl_close($ch);
-
         return $response_status === 200;
     }
 

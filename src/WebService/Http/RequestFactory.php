@@ -20,13 +20,6 @@ class RequestFactory
      */
     private $ch;
 
-    public function __destruct()
-    {
-        if (!empty($this->ch)) {
-            curl_close($this->ch);
-        }
-    }
-
     /**
      * @return \CurlHandle
      */

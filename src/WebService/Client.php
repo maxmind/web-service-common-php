@@ -158,12 +158,12 @@ class Client
      */
     private function createRequest(string $path, array $headers = []): Http\Request
     {
-        array_push(
-            $headers,
+        $headers = [
+            ...$headers,
             'Authorization: Basic '
             . base64_encode($this->accountId . ':' . $this->licenseKey),
-            'Accept: application/json'
-        );
+            'Accept: application/json',
+        ];
 
         return $this->httpRequestFactory->request(
             $this->urlFor($path),

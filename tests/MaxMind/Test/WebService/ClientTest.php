@@ -136,9 +136,13 @@ class ClientTest extends TestCase
         );
 
         $curlVersion = curl_version();
+        $this->assertIsArray($curlVersion);
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
 
+        $this->assertNotNull($response);
+        $this->assertArrayHasKey('_SERVER', $response);
+        $this->assertIsArray($response['_SERVER']);
         $this->assertSame($response['_SERVER']['HTTP_HOST'], $host, 'received expected host');
         $this->assertSame($response['_SERVER']['HTTP_USER_AGENT'], $userAgent, 'received expected user agent');
         $this->assertSame($response['_SERVER']['HTTP_ACCEPT'], 'application/json', 'received expected accept header');
@@ -148,6 +152,7 @@ class ClientTest extends TestCase
         $this->assertSame($response['_SERVER']['REQUEST_METHOD'], 'POST', 'received expected http method');
         $this->assertSame($response['_SERVER']['REQUEST_URI'], '/mirror', 'received expected path');
 
+        $this->assertArrayHasKey('INPUT', $response);
         $this->assertSame($response['INPUT'], '["test"]', 'received expected body');
     }
 
@@ -170,9 +175,13 @@ class ClientTest extends TestCase
         );
 
         $curlVersion = curl_version();
+        $this->assertIsArray($curlVersion);
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
 
+        $this->assertNotNull($response);
+        $this->assertArrayHasKey('_SERVER', $response);
+        $this->assertIsArray($response['_SERVER']);
         $this->assertSame($response['_SERVER']['HTTP_HOST'], $host, 'received expected host');
         $this->assertSame($response['_SERVER']['HTTP_USER_AGENT'], $userAgent, 'received expected user agent');
         $this->assertSame($response['_SERVER']['HTTP_ACCEPT'], 'application/json', 'received expected accept header');
@@ -349,7 +358,7 @@ class ClientTest extends TestCase
     /**
      * @return array<int, list<string>>
      */
-    public function invalidAuthCodes(): array
+    public static function invalidAuthCodes(): array
     {
         return [
             ['ACCOUNT_ID_REQUIRED'],
@@ -524,7 +533,9 @@ class ClientTest extends TestCase
             'body' => $body,
             'contentType' => $contentType,
         ];
-        self::addResponseInQueue(json_encode($response));
+        $json = json_encode($response);
+        $this->assertIsString($json);
+        self::addResponseInQueue($json);
 
         return $this->runRequestTestServer(
             'TestService',
@@ -632,6 +643,9 @@ class ClientTest extends TestCase
         ];
 
         $curlVersion = curl_version();
+        if ($curlVersion === false) {
+            throw new \RuntimeException('curl_version() returned false');
+        }
         $userAgent = 'MaxMind-WS-API/' . Client::VERSION . ' PHP/' . \PHP_VERSION
             . ' curl/' . $curlVersion['version'];
         if (isset($options['userAgent'])) {

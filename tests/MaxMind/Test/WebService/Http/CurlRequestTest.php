@@ -22,16 +22,27 @@ use PHPUnit\Framework\TestCase;
 class CurlRequestTest extends TestCase
 {
     /**
-     * @var array<string, mixed>
+     * @var array{
+     *     caBundle?: string,
+     *     connectTimeout: float|int,
+     *     curlHandle: \CurlHandle,
+     *     headers: array<int, string>,
+     *     proxy: string|null,
+     *     timeout: float|int,
+     *     userAgent: string
+     * }
      */
-    private $options;
+    private array $options;
 
     protected function setUp(): void
     {
+        $curlHandle = curl_init();
+        if ($curlHandle === false) {
+            throw new \RuntimeException('curl_init() returned false');
+        }
         $this->options = [
-            'caBundle' => null,
             'connectTimeout' => 0,
-            'curlHandle' => curl_init(),
+            'curlHandle' => $curlHandle,
             'headers' => [],
             'proxy' => null,
             'timeout' => 0,

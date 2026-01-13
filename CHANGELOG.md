@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+0.11.1 (2026-01-13)
+-------------------
+
+* Removed deprecated `curl_close()` calls. These were no-ops since PHP 8.0
+  and are deprecated in PHP 8.5. Pull request by Sam Reed. GitHub #105.
+* Added native property and return types. PHPStan level increased from 6 to 8.
+
 0.11.0 (2025-11-20)
 -------------------
 

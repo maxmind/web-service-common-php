@@ -358,7 +358,7 @@ class ClientTest extends TestCase
     /**
      * @return array<int, list<string>>
      */
-    public function invalidAuthCodes(): array
+    public static function invalidAuthCodes(): array
     {
         return [
             ['ACCOUNT_ID_REQUIRED'],

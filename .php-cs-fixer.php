@@ -32,6 +32,7 @@ return $config
         'phpdoc_order' => true,
         'phpdoc_types_order' => ['sort_algorithm' => 'alpha', 'null_adjustment' => 'always_last'],
         'semicolon_after_instruction' => true,
+        'single_line_empty_body' => false,
         'single_line_throw' => false,
         'strict_comparison' => true,
         'strict_param' => true,

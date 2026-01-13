@@ -17,16 +17,22 @@ if ($_SERVER['REQUEST_URI'] === '/mirror') { // For checking if the server is up
 }
 
 // Getting the location of the tmp response json file.
-$fullResponseFilePath = getenv('RESPONSEJSON') ?: getenv('RESPONSEJSON');
+$fullResponseFilePath = getenv('RESPONSEJSON');
 
 // If there is no response file, return empty
-if (!file_exists($fullResponseFilePath)) {
+if ($fullResponseFilePath === false || !file_exists($fullResponseFilePath)) {
     exit(0);
 }
 
 // Consume a response from the response file
 $contents = file($fullResponseFilePath, \FILE_IGNORE_NEW_LINES);
+if ($contents === false) {
+    exit(0);
+}
 $responseJSON = array_shift($contents);
+if ($responseJSON === null) {
+    exit(0);
+}
 $parsedJSON = json_decode($responseJSON);
 file_put_contents($fullResponseFilePath, implode(\PHP_EOL, $contents));
 

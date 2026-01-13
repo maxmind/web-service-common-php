@@ -15,17 +15,12 @@ class RequestFactory
      * Keep the cURL resource here, so that if there are multiple API requests
      * done the connection is kept alive, SSL resumption can be used
      * etcetera.
-     *
-     * @var \CurlHandle|null
      */
-    private $ch;
+    private ?\CurlHandle $ch = null;
 
-    /**
-     * @return \CurlHandle
-     */
-    private function getCurlHandle()
+    private function getCurlHandle(): \CurlHandle
     {
-        if (empty($this->ch)) {
+        if ($this->ch === null) {
             $this->ch = curl_init();
         }
 
@@ -39,6 +34,7 @@ class RequestFactory
     {
         $options['curlHandle'] = $this->getCurlHandle();
 
+        // @phpstan-ignore argument.type (options array is built dynamically by Client)
         return new CurlRequest($url, $options);
     }
 }

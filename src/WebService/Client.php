@@ -26,55 +26,16 @@ class Client
 {
     public const VERSION = '0.2.0';
 
-    /**
-     * @var string|null
-     */
-    private $caBundle;
-
-    /**
-     * @var float|null
-     */
-    private $connectTimeout;
-
-    /**
-     * @var string
-     */
-    private $host = 'api.maxmind.com';
-
-    /**
-     * @var bool
-     */
-    private $useHttps = true;
-
-    /**
-     * @var RequestFactory
-     */
-    private $httpRequestFactory;
-
-    /**
-     * @var string
-     */
-    private $licenseKey;
-
-    /**
-     * @var string|null
-     */
-    private $proxy;
-
-    /**
-     * @var float|null
-     */
-    private $timeout;
-
-    /**
-     * @var string
-     */
-    private $userAgentPrefix;
-
-    /**
-     * @var int
-     */
-    private $accountId;
+    private ?string $caBundle;
+    private ?float $connectTimeout;
+    private string $host = 'api.maxmind.com';
+    private bool $useHttps = true;
+    private RequestFactory $httpRequestFactory;
+    private string $licenseKey;
+    private ?string $proxy;
+    private ?float $timeout;
+    private string $userAgentPrefix = '';
+    private int $accountId;
 
     /**
      * @param int                  $accountId  your MaxMind account ID
@@ -111,19 +72,10 @@ class Client
             $this->userAgentPrefix = $options['userAgent'] . ' ';
         }
 
-        $this->caBundle = isset($options['caBundle'])
-            ? $this->caBundle = $options['caBundle'] : $this->getCaBundle();
-
-        if (isset($options['connectTimeout'])) {
-            $this->connectTimeout = $options['connectTimeout'];
-        }
-        if (isset($options['timeout'])) {
-            $this->timeout = $options['timeout'];
-        }
-
-        if (isset($options['proxy'])) {
-            $this->proxy = $options['proxy'];
-        }
+        $this->caBundle = $options['caBundle'] ?? $this->getCaBundle();
+        $this->connectTimeout = $options['connectTimeout'] ?? null;
+        $this->timeout = $options['timeout'] ?? null;
+        $this->proxy = $options['proxy'] ?? null;
     }
 
     /**
@@ -193,6 +145,9 @@ class Client
     private function userAgent(): string
     {
         $curlVersion = curl_version();
+        if ($curlVersion === false) {
+            throw new \RuntimeException('curl_version() returned false');
+        }
 
         return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
            . ' curl/' . $curlVersion['version'];
@@ -508,6 +463,9 @@ class Client
     private function getCaBundle(): ?string
     {
         $curlVersion = curl_version();
+        if ($curlVersion === false) {
+            throw new \RuntimeException('curl_version() returned false');
+        }
 
         // On OS X, when the SSL version is "SecureTransport", the system's
         // keychain will be used.

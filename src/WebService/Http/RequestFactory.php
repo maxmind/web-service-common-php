@@ -21,7 +21,11 @@ class RequestFactory
     private function getCurlHandle(): \CurlHandle
     {
         if ($this->ch === null) {
-            $this->ch = curl_init();
+            $ch = curl_init();
+            if ($ch === false) {
+                throw new \RuntimeException('Unable to initialize cURL handle');
+            }
+            $this->ch = $ch;
         }
 
         return $this->ch;

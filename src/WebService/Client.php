@@ -278,7 +278,7 @@ class Client
                 $this->urlFor($path)
             );
         }
-        if ($contentType === null || !strstr($contentType, 'json')) {
+        if ($contentType === null || !str_contains($contentType, 'json')) {
             throw new HttpException(
                 "Received a $statusCode error for $service with "
                 . 'the following body: ' . $body,
@@ -476,7 +476,7 @@ class Client
 
         // Check if the cert is inside a phar. If so, we need to copy the cert
         // to a temp file so that curl can see it.
-        if (substr($cert, 0, 7) === 'phar://') {
+        if (str_starts_with($cert, 'phar://')) {
             $tempDir = sys_get_temp_dir();
             $newCert = tempnam($tempDir, 'geoip2-');
             if ($newCert === false) {

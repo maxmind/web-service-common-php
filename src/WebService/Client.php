@@ -26,16 +26,16 @@ class Client
 {
     public const VERSION = '0.2.0';
 
-    private ?string $caBundle;
-    private ?float $connectTimeout;
-    private string $host = 'api.maxmind.com';
-    private bool $useHttps = true;
-    private RequestFactory $httpRequestFactory;
-    private string $licenseKey;
-    private ?string $proxy;
-    private ?float $timeout;
-    private string $userAgentPrefix = '';
-    private int $accountId;
+    private readonly ?string $caBundle;
+    private readonly ?float $connectTimeout;
+    private readonly string $host;
+    private readonly bool $useHttps;
+    private readonly RequestFactory $httpRequestFactory;
+    private readonly string $licenseKey;
+    private readonly ?string $proxy;
+    private readonly ?float $timeout;
+    private readonly string $userAgentPrefix;
+    private readonly int $accountId;
 
     /**
      * @param int                  $accountId  your MaxMind account ID
@@ -58,20 +58,10 @@ class Client
         $this->accountId = $accountId;
         $this->licenseKey = $licenseKey;
 
-        $this->httpRequestFactory = isset($options['httpRequestFactory'])
-            ? $options['httpRequestFactory']
-            : new RequestFactory();
-
-        if (isset($options['host'])) {
-            $this->host = $options['host'];
-        }
-        if (isset($options['useHttps'])) {
-            $this->useHttps = $options['useHttps'];
-        }
-        if (isset($options['userAgent'])) {
-            $this->userAgentPrefix = $options['userAgent'] . ' ';
-        }
-
+        $this->httpRequestFactory = $options['httpRequestFactory'] ?? new RequestFactory();
+        $this->host = $options['host'] ?? 'api.maxmind.com';
+        $this->useHttps = $options['useHttps'] ?? true;
+        $this->userAgentPrefix = isset($options['userAgent']) ? $options['userAgent'] . ' ' : '';
         $this->caBundle = $options['caBundle'] ?? $this->getCaBundle();
         $this->connectTimeout = $options['connectTimeout'] ?? null;
         $this->timeout = $options['timeout'] ?? null;

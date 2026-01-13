@@ -13,8 +13,8 @@ use MaxMind\Exception\HttpException;
  */
 class CurlRequest implements Request
 {
-    private \CurlHandle $ch;
-    private string $url;
+    private readonly \CurlHandle $ch;
+    private readonly string $url;
 
     /**
      * @var array{
@@ -27,7 +27,7 @@ class CurlRequest implements Request
      *     userAgent: string
      * }
      */
-    private array $options;
+    private readonly array $options;
 
     /**
      * @param array{

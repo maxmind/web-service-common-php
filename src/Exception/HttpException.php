@@ -12,7 +12,7 @@ class HttpException extends WebServiceException
     /**
      * The URI queried.
      */
-    private string $uri;
+    private readonly string $uri;
 
     /**
      * @param string     $message    a message describing the error

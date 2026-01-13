@@ -12,7 +12,7 @@ class InvalidRequestException extends HttpException
     /**
      * The code returned by the MaxMind web service.
      */
-    private string $error;
+    private readonly string $error;
 
     /**
      * @param string     $message    the exception message

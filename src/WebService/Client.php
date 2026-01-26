@@ -485,7 +485,7 @@ class Client
             // destructor isn't called on a fatal error such as an uncaught
             // exception.
             register_shutdown_function(
-                function () use ($newCert) {
+                static function () use ($newCert) {
                     unlink($newCert);
                 }
             );

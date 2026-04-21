@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // This program is used for testing the unit tests found in this package.
 // It is a test server that is ran by ClientTest.php as a seperate process.
 // It uses the built-in PHP server.

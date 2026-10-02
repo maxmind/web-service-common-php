@@ -63,6 +63,8 @@ class CurlRequest implements Request
     }
 
     /**
+     * @throws HttpException when the request fails
+     *
      * @return array{0:int, 1:string|null, 2:string|null}
      */
     public function get(): array

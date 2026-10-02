@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+0.12.0
+-------------------
+
+* Added `@throws` tags for the exceptions that `Client`, the `Request`
+  interface, and `RequestFactory::request()` can throw. This includes the
+  `RuntimeException` for a cURL setup failure.
+
 0.11.1 (2026-01-13)
 -------------------
 

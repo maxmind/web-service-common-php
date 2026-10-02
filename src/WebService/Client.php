@@ -49,6 +49,10 @@ class Client
      *                                         * `timeout` - The timeout to use for the request.
      *                                         * `proxy` - The HTTP proxy to use. May include a schema, port,
      *                                         username, and password, e.g., `http://username:password@127.0.0.1:10`.
+     *
+     * @throws \RuntimeException if the `caBundle` option is not set and the
+     *                           cURL version cannot be determined or the CA
+     *                           bundle cannot be set up
      */
     public function __construct(
         int $accountId,
@@ -83,6 +87,8 @@ class Client
      * @throws HttpException              when an unexpected HTTP error occurs
      * @throws WebServiceException        when some other error occurs. This also
      *                                    serves as the base class for the above exceptions.
+     * @throws \RuntimeException          if the cURL version cannot be determined or
+     *                                    the cURL handle cannot be initialized
      *
      * @return array<mixed>|null The decoded content of a successful response
      */
@@ -113,7 +119,18 @@ class Client
     }
 
     /**
-     * @return array<mixed>|null
+     * @throws AuthenticationException    when there is an issue authenticating the
+     *                                    request
+     * @throws InsufficientFundsException when your account is out of funds
+     * @throws InvalidRequestException    when the request is invalid for some
+     *                                    other reason
+     * @throws HttpException              when an unexpected HTTP error occurs
+     * @throws WebServiceException        when some other error occurs. This also
+     *                                    serves as the base class for the above exceptions.
+     * @throws \RuntimeException          if the cURL version cannot be determined or
+     *                                    the cURL handle cannot be initialized
+     *
+     * @return array<mixed>|null The decoded content of a successful response
      */
     public function get(string $service, string $path): ?array
     {
@@ -132,6 +149,9 @@ class Client
         );
     }
 
+    /**
+     * @throws \RuntimeException if the cURL version cannot be determined
+     */
     private function userAgent(): string
     {
         $curlVersion = curl_version();
@@ -145,6 +165,9 @@ class Client
 
     /**
      * @param array<string> $headers
+     *
+     * @throws \RuntimeException if the cURL version cannot be determined or
+     *                           the cURL handle cannot be initialized
      */
     private function createRequest(string $path, array $headers = []): Http\Request
     {
@@ -450,6 +473,11 @@ class Client
         return $decodedContent;
     }
 
+    /**
+     * @throws \RuntimeException if the cURL version cannot be determined or
+     *                           the CA bundle cannot be found or copied out of
+     *                           a phar archive
+     */
     private function getCaBundle(): ?string
     {
         $curlVersion = curl_version();

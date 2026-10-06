@@ -15,6 +15,7 @@ use MaxMind\Exception\PermissionRequiredException;
 use MaxMind\Exception\WebServiceException;
 use MaxMind\WebService\Client;
 use MaxMind\WebService\Http\Request;
+use MaxMind\WebService\Http\RequestFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
@@ -295,6 +296,109 @@ class ClientTest extends TestCase
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
         $this->withResponse(204, 'application/json', 'non-empty response body');
+    }
+
+    /**
+     * @dataProvider scalarResponseBodies
+     */
+    public function testScalarResponseBody(string $body): void
+    {
+        $this->expectException(WebServiceException::class);
+        $this->expectExceptionMessage('not an object or array');
+        $this->withResponse(200, 'application/json', $body);
+    }
+
+    /**
+     * @return array<array{string}>
+     */
+    public static function scalarResponseBodies(): array
+    {
+        return [['1'], ['"ok"'], ['true'], ['false']];
+    }
+
+    public function testRequestSetupFailure(): void
+    {
+        $cause = new \RuntimeException('curl_init() returned false');
+        $factory = $this->createMock(RequestFactory::class);
+        $factory->method('request')->willThrowException($cause);
+        $client = new Client(1, 'key', ['httpRequestFactory' => $factory]);
+
+        try {
+            $client->get('TestService', '/test');
+            $this->fail('Expected a web service exception.');
+        } catch (WebServiceException $ex) {
+            $this->assertSame($cause, $ex->getPrevious());
+            $this->assertSame($cause->getMessage(), $ex->getMessage());
+        }
+    }
+
+    public function testCaBundleSetupFailure(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'ca-bundle-');
+        copy(CaBundle::getBundledCaBundlePath(), $path);
+        $previous = getenv('SSL_CERT_FILE');
+        putenv('SSL_CERT_FILE=' . $path);
+        CaBundle::reset();
+
+        try {
+            $this->assertSame($path, CaBundle::getSystemCaRootBundlePath());
+            unlink($path);
+            $this->expectException(WebServiceException::class);
+            $this->expectExceptionMessage('CA cert does not exist');
+            new Client(1, 'key');
+        } finally {
+            if ($previous === false) {
+                putenv('SSL_CERT_FILE');
+            } else {
+                putenv('SSL_CERT_FILE=' . $previous);
+            }
+            CaBundle::reset();
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
+
+    public function testPharCaBundleIsReused(): void
+    {
+        $archive = tempnam(sys_get_temp_dir(), 'ca-bundle-');
+        unlink($archive);
+        $archive .= '.tar';
+        $phar = new \PharData($archive);
+        $phar->addFile(CaBundle::getBundledCaBundlePath(), 'ca.pem');
+        $previous = getenv('SSL_CERT_FILE');
+        putenv('SSL_CERT_FILE=phar://' . $archive . '/ca.pem');
+        CaBundle::reset();
+        $bundles = [];
+        $request = $this->createMock(Request::class);
+        $request->method('get')->willReturn([200, 'application/json', '{}']);
+        $factory = $this->createMock(RequestFactory::class);
+        $factory->method('request')->willReturnCallback(
+            static function (string $url, array $options) use (&$bundles, $request): Request {
+                $bundles[] = $options['caBundle'];
+
+                return $request;
+            }
+        );
+
+        try {
+            for ($i = 0; $i < 2; ++$i) {
+                $client = new Client(1, 'key', ['httpRequestFactory' => $factory]);
+                $client->get('TestService', '/test');
+            }
+            $this->assertCount(2, $bundles);
+            $this->assertSame($bundles[0], $bundles[1]);
+            $this->assertFileEquals(CaBundle::getBundledCaBundlePath(), $bundles[0]);
+            $this->assertNotFalse(realpath($bundles[0]));
+        } finally {
+            if ($previous === false) {
+                putenv('SSL_CERT_FILE');
+            } else {
+                putenv('SSL_CERT_FILE=' . $previous);
+            }
+            CaBundle::reset();
+            unlink($archive);
+        }
     }
 
     public function testGetInsufficientFunds(): void

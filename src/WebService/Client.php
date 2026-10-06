@@ -34,8 +34,11 @@ class Client
     private readonly string $licenseKey;
     private readonly ?string $proxy;
     private readonly ?float $timeout;
-    private readonly string $userAgentPrefix;
+    private readonly string $userAgent;
     private readonly int $accountId;
+
+    /** @var array<string, string> */
+    private static array $pharCaBundles = [];
 
     /**
      * @param int                  $accountId  your MaxMind account ID
@@ -49,6 +52,9 @@ class Client
      *                                         * `timeout` - The timeout to use for the request.
      *                                         * `proxy` - The HTTP proxy to use. May include a schema, port,
      *                                         username, and password, e.g., `http://username:password@127.0.0.1:10`.
+     *
+     * @throws WebServiceException if the cURL version cannot be determined or
+     *                             the CA bundle cannot be set up
      */
     public function __construct(
         int $accountId,
@@ -61,8 +67,19 @@ class Client
         $this->httpRequestFactory = $options['httpRequestFactory'] ?? new RequestFactory();
         $this->host = $options['host'] ?? 'api.maxmind.com';
         $this->useHttps = $options['useHttps'] ?? true;
-        $this->userAgentPrefix = isset($options['userAgent']) ? $options['userAgent'] . ' ' : '';
-        $this->caBundle = $options['caBundle'] ?? $this->getCaBundle();
+        $curlVersion = curl_version();
+        if ($curlVersion === false) {
+            throw new WebServiceException('curl_version() returned false');
+        }
+        $prefix = isset($options['userAgent']) ? $options['userAgent'] . ' ' : '';
+        $this->userAgent = $prefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
+            . ' curl/' . $curlVersion['version'];
+
+        try {
+            $this->caBundle = $options['caBundle'] ?? $this->getCaBundle($curlVersion['ssl_version']);
+        } catch (\RuntimeException $ex) {
+            throw new WebServiceException($ex->getMessage(), 0, $ex);
+        }
         $this->connectTimeout = $options['connectTimeout'] ?? null;
         $this->timeout = $options['timeout'] ?? null;
         $this->proxy = $options['proxy'] ?? null;
@@ -113,7 +130,16 @@ class Client
     }
 
     /**
-     * @return array<mixed>|null
+     * @throws AuthenticationException    when there is an issue authenticating the
+     *                                    request
+     * @throws InsufficientFundsException when your account is out of funds
+     * @throws InvalidRequestException    when the request is invalid for some
+     *                                    other reason
+     * @throws HttpException              when an unexpected HTTP error occurs
+     * @throws WebServiceException        when some other error occurs. This also
+     *                                    serves as the base class for the above exceptions.
+     *
+     * @return array<mixed>|null The decoded content of a successful response
      */
     public function get(string $service, string $path): ?array
     {
@@ -132,19 +158,10 @@ class Client
         );
     }
 
-    private function userAgent(): string
-    {
-        $curlVersion = curl_version();
-        if ($curlVersion === false) {
-            throw new \RuntimeException('curl_version() returned false');
-        }
-
-        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
-           . ' curl/' . $curlVersion['version'];
-    }
-
     /**
      * @param array<string> $headers
+     *
+     * @throws WebServiceException if the cURL handle cannot be initialized
      */
     private function createRequest(string $path, array $headers = []): Http\Request
     {
@@ -155,17 +172,21 @@ class Client
             'Accept: application/json',
         ];
 
-        return $this->httpRequestFactory->request(
-            $this->urlFor($path),
-            [
-                'caBundle' => $this->caBundle,
-                'connectTimeout' => $this->connectTimeout,
-                'headers' => $headers,
-                'proxy' => $this->proxy,
-                'timeout' => $this->timeout,
-                'userAgent' => $this->userAgent(),
-            ]
-        );
+        try {
+            return $this->httpRequestFactory->request(
+                $this->urlFor($path),
+                [
+                    'caBundle' => $this->caBundle,
+                    'connectTimeout' => $this->connectTimeout,
+                    'headers' => $headers,
+                    'proxy' => $this->proxy,
+                    'timeout' => $this->timeout,
+                    'userAgent' => $this->userAgent,
+                ]
+            );
+        } catch (\RuntimeException $ex) {
+            throw new WebServiceException($ex->getMessage(), 0, $ex);
+        }
     }
 
     /**
@@ -410,9 +431,8 @@ class Client
      * @param string      $service    the service name
      *
      * @throws WebServiceException if a response body is included but not
-     *                             expected, or is not expected but not
-     *                             included, or is expected and included
-     *                             but cannot be decoded as JSON
+     *                             expected, is missing when expected, or is
+     *                             not a JSON object or array
      *
      * @return array<mixed>|null the decoded request body
      */
@@ -447,19 +467,25 @@ class Client
             );
         }
 
+        if (!\is_array($decodedContent)) {
+            throw new WebServiceException(
+                "Received a 200 response for $service but the JSON body is not an object or array."
+            );
+        }
+
         return $decodedContent;
     }
 
-    private function getCaBundle(): ?string
+    /**
+     * @throws \RuntimeException if the CA bundle cannot be found or copied out
+     *                           of a phar archive
+     */
+    private function getCaBundle(string $sslVersion): ?string
     {
-        $curlVersion = curl_version();
-        if ($curlVersion === false) {
-            throw new \RuntimeException('curl_version() returned false');
-        }
 
         // On OS X, when the SSL version is "SecureTransport", the system's
         // keychain will be used.
-        if ($curlVersion['ssl_version'] === 'SecureTransport') {
+        if ($sslVersion === 'SecureTransport') {
             return null;
         }
         $cert = CaBundle::getSystemCaRootBundlePath();
@@ -467,34 +493,50 @@ class Client
         // Check if the cert is inside a phar. If so, we need to copy the cert
         // to a temp file so that curl can see it.
         if (str_starts_with($cert, 'phar://')) {
-            $tempDir = sys_get_temp_dir();
-            $newCert = tempnam($tempDir, 'geoip2-');
-            if ($newCert === false) {
-                throw new \RuntimeException(
-                    "Unable to create temporary file in $tempDir"
-                );
-            }
-            if (!copy($cert, $newCert)) {
-                throw new \RuntimeException(
-                    "Could not copy $cert to $newCert: "
-                    . var_export(error_get_last(), true)
-                );
-            }
-
-            // We use a shutdown function rather than the destructor as the
-            // destructor isn't called on a fatal error such as an uncaught
-            // exception.
-            register_shutdown_function(
-                static function () use ($newCert) {
-                    unlink($newCert);
-                }
-            );
-            $cert = $newCert;
+            $cert = $this->extractCaBundle($cert);
         }
         if (!file_exists($cert)) {
             throw new \RuntimeException("CA cert does not exist at $cert");
         }
 
         return $cert;
+    }
+
+    /**
+     * @throws \RuntimeException if the CA bundle cannot be copied out of the archive
+     */
+    private function extractCaBundle(string $cert): string
+    {
+        if (isset(self::$pharCaBundles[$cert]) && is_file(self::$pharCaBundles[$cert])) {
+            return self::$pharCaBundles[$cert];
+        }
+
+        $tempDir = sys_get_temp_dir();
+        $newCert = tempnam($tempDir, 'geoip2-');
+        if ($newCert === false) {
+            throw new \RuntimeException("Unable to create temporary file in $tempDir");
+        }
+        if (!copy($cert, $newCert)) {
+            $error = error_get_last();
+            unlink($newCert);
+
+            throw new \RuntimeException(
+                "Could not copy $cert to $newCert: " . var_export($error, true)
+            );
+        }
+
+        if (!isset(self::$pharCaBundles[$cert])) {
+            register_shutdown_function(
+                static function () use ($cert) {
+                    $path = self::$pharCaBundles[$cert];
+                    if (is_file($path)) {
+                        unlink($path);
+                    }
+                }
+            );
+        }
+        self::$pharCaBundles[$cert] = $newCert;
+
+        return $newCert;
     }
 }

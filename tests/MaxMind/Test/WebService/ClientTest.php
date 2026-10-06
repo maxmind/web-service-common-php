@@ -298,6 +298,24 @@ class ClientTest extends TestCase
         $this->withResponse(204, 'application/json', 'non-empty response body');
     }
 
+    /**
+     * @dataProvider scalarResponseBodies
+     */
+    public function testScalarResponseBody(string $body): void
+    {
+        $this->expectException(WebServiceException::class);
+        $this->expectExceptionMessage('not an object or array');
+        $this->withResponse(200, 'application/json', $body);
+    }
+
+    /**
+     * @return array<array{string}>
+     */
+    public static function scalarResponseBodies(): array
+    {
+        return [['1'], ['"ok"'], ['true'], ['false']];
+    }
+
     public function testRequestSetupFailure(): void
     {
         $cause = new \RuntimeException('curl_init() returned false');

@@ -428,9 +428,8 @@ class Client
      * @param string      $service    the service name
      *
      * @throws WebServiceException if a response body is included but not
-     *                             expected, or is not expected but not
-     *                             included, or is expected and included
-     *                             but cannot be decoded as JSON
+     *                             expected, is missing when expected, or is
+     *                             not a JSON object or array
      *
      * @return array<mixed>|null the decoded request body
      */
@@ -462,6 +461,12 @@ class Client
                 "Received a 200 response for $service but could "
                 . 'not decode the response as JSON: '
                 . $this->jsonErrorDescription() . ' Body: ' . $body
+            );
+        }
+
+        if (!\is_array($decodedContent)) {
+            throw new WebServiceException(
+                "Received a 200 response for $service but the JSON body is not an object or array."
             );
         }
 

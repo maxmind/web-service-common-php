@@ -8,6 +8,8 @@ CHANGELOG
   failures. Request setup failures preserve the original exception as the
   previous exception. The client reads the cURL version once during
   construction.
+* Successful responses with scalar JSON bodies now throw `WebServiceException`
+  instead of `TypeError`.
 * CA certificate directories now use cURL's `CURLOPT_CAPATH` option.
 * Added `@throws` tags for the exceptions that `Client`, the `Request`
   interface, and `RequestFactory::request()` can throw. This includes the

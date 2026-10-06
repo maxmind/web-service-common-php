@@ -15,6 +15,7 @@ use MaxMind\Exception\PermissionRequiredException;
 use MaxMind\Exception\WebServiceException;
 use MaxMind\WebService\Client;
 use MaxMind\WebService\Http\Request;
+use MaxMind\WebService\Http\RequestFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
@@ -295,6 +296,49 @@ class ClientTest extends TestCase
         $this->expectExceptionMessage('Received a 204 response for TestService along with an unexpected HTTP body: non-empty response body');
 
         $this->withResponse(204, 'application/json', 'non-empty response body');
+    }
+
+    public function testRequestSetupFailure(): void
+    {
+        $cause = new \RuntimeException('curl_init() returned false');
+        $factory = $this->createMock(RequestFactory::class);
+        $factory->method('request')->willThrowException($cause);
+        $client = new Client(1, 'key', ['httpRequestFactory' => $factory]);
+
+        try {
+            $client->get('TestService', '/test');
+            $this->fail('Expected a web service exception.');
+        } catch (WebServiceException $ex) {
+            $this->assertSame($cause, $ex->getPrevious());
+            $this->assertSame($cause->getMessage(), $ex->getMessage());
+        }
+    }
+
+    public function testCaBundleSetupFailure(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'ca-bundle-');
+        copy(CaBundle::getBundledCaBundlePath(), $path);
+        $previous = getenv('SSL_CERT_FILE');
+        putenv('SSL_CERT_FILE=' . $path);
+        CaBundle::reset();
+
+        try {
+            $this->assertSame($path, CaBundle::getSystemCaRootBundlePath());
+            unlink($path);
+            $this->expectException(WebServiceException::class);
+            $this->expectExceptionMessage('CA cert does not exist');
+            new Client(1, 'key');
+        } finally {
+            if ($previous === false) {
+                putenv('SSL_CERT_FILE');
+            } else {
+                putenv('SSL_CERT_FILE=' . $previous);
+            }
+            CaBundle::reset();
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
     }
 
     public function testGetInsufficientFunds(): void

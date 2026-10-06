@@ -34,7 +34,7 @@ class Client
     private readonly string $licenseKey;
     private readonly ?string $proxy;
     private readonly ?float $timeout;
-    private readonly string $userAgentPrefix;
+    private readonly string $userAgent;
     private readonly int $accountId;
 
     /**
@@ -50,9 +50,8 @@ class Client
      *                                         * `proxy` - The HTTP proxy to use. May include a schema, port,
      *                                         username, and password, e.g., `http://username:password@127.0.0.1:10`.
      *
-     * @throws \RuntimeException if the `caBundle` option is not set and the
-     *                           cURL version cannot be determined or the CA
-     *                           bundle cannot be set up
+     * @throws WebServiceException if the cURL version cannot be determined or
+     *                             the CA bundle cannot be set up
      */
     public function __construct(
         int $accountId,
@@ -65,8 +64,19 @@ class Client
         $this->httpRequestFactory = $options['httpRequestFactory'] ?? new RequestFactory();
         $this->host = $options['host'] ?? 'api.maxmind.com';
         $this->useHttps = $options['useHttps'] ?? true;
-        $this->userAgentPrefix = isset($options['userAgent']) ? $options['userAgent'] . ' ' : '';
-        $this->caBundle = $options['caBundle'] ?? $this->getCaBundle();
+        $curlVersion = curl_version();
+        if ($curlVersion === false) {
+            throw new WebServiceException('curl_version() returned false');
+        }
+        $prefix = isset($options['userAgent']) ? $options['userAgent'] . ' ' : '';
+        $this->userAgent = $prefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
+            . ' curl/' . $curlVersion['version'];
+
+        try {
+            $this->caBundle = $options['caBundle'] ?? $this->getCaBundle($curlVersion['ssl_version']);
+        } catch (\RuntimeException $ex) {
+            throw new WebServiceException($ex->getMessage(), 0, $ex);
+        }
         $this->connectTimeout = $options['connectTimeout'] ?? null;
         $this->timeout = $options['timeout'] ?? null;
         $this->proxy = $options['proxy'] ?? null;
@@ -87,8 +97,6 @@ class Client
      * @throws HttpException              when an unexpected HTTP error occurs
      * @throws WebServiceException        when some other error occurs. This also
      *                                    serves as the base class for the above exceptions.
-     * @throws \RuntimeException          if the cURL version cannot be determined or
-     *                                    the cURL handle cannot be initialized
      *
      * @return array<mixed>|null The decoded content of a successful response
      */
@@ -127,8 +135,6 @@ class Client
      * @throws HttpException              when an unexpected HTTP error occurs
      * @throws WebServiceException        when some other error occurs. This also
      *                                    serves as the base class for the above exceptions.
-     * @throws \RuntimeException          if the cURL version cannot be determined or
-     *                                    the cURL handle cannot be initialized
      *
      * @return array<mixed>|null The decoded content of a successful response
      */
@@ -150,24 +156,9 @@ class Client
     }
 
     /**
-     * @throws \RuntimeException if the cURL version cannot be determined
-     */
-    private function userAgent(): string
-    {
-        $curlVersion = curl_version();
-        if ($curlVersion === false) {
-            throw new \RuntimeException('curl_version() returned false');
-        }
-
-        return $this->userAgentPrefix . 'MaxMind-WS-API/' . self::VERSION . ' PHP/' . \PHP_VERSION
-           . ' curl/' . $curlVersion['version'];
-    }
-
-    /**
      * @param array<string> $headers
      *
-     * @throws \RuntimeException if the cURL version cannot be determined or
-     *                           the cURL handle cannot be initialized
+     * @throws WebServiceException if the cURL handle cannot be initialized
      */
     private function createRequest(string $path, array $headers = []): Http\Request
     {
@@ -178,17 +169,21 @@ class Client
             'Accept: application/json',
         ];
 
-        return $this->httpRequestFactory->request(
-            $this->urlFor($path),
-            [
-                'caBundle' => $this->caBundle,
-                'connectTimeout' => $this->connectTimeout,
-                'headers' => $headers,
-                'proxy' => $this->proxy,
-                'timeout' => $this->timeout,
-                'userAgent' => $this->userAgent(),
-            ]
-        );
+        try {
+            return $this->httpRequestFactory->request(
+                $this->urlFor($path),
+                [
+                    'caBundle' => $this->caBundle,
+                    'connectTimeout' => $this->connectTimeout,
+                    'headers' => $headers,
+                    'proxy' => $this->proxy,
+                    'timeout' => $this->timeout,
+                    'userAgent' => $this->userAgent,
+                ]
+            );
+        } catch (\RuntimeException $ex) {
+            throw new WebServiceException($ex->getMessage(), 0, $ex);
+        }
     }
 
     /**
@@ -474,20 +469,15 @@ class Client
     }
 
     /**
-     * @throws \RuntimeException if the cURL version cannot be determined or
-     *                           the CA bundle cannot be found or copied out of
-     *                           a phar archive
+     * @throws \RuntimeException if the CA bundle cannot be found or copied out
+     *                           of a phar archive
      */
-    private function getCaBundle(): ?string
+    private function getCaBundle(string $sslVersion): ?string
     {
-        $curlVersion = curl_version();
-        if ($curlVersion === false) {
-            throw new \RuntimeException('curl_version() returned false');
-        }
 
         // On OS X, when the SSL version is "SecureTransport", the system's
         // keychain will be used.
-        if ($curlVersion['ssl_version'] === 'SecureTransport') {
+        if ($sslVersion === 'SecureTransport') {
             return null;
         }
         $cert = CaBundle::getSystemCaRootBundlePath();

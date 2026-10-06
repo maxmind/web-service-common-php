@@ -84,7 +84,11 @@ class CurlRequest implements Request
         $opts[\CURLOPT_URL] = $this->url;
 
         if (!empty($this->options['caBundle'])) {
-            $opts[\CURLOPT_CAINFO] = $this->options['caBundle'];
+            if (is_dir($this->options['caBundle'])) {
+                $opts[\CURLOPT_CAPATH] = $this->options['caBundle'];
+            } else {
+                $opts[\CURLOPT_CAINFO] = $this->options['caBundle'];
+            }
         }
 
         $opts[\CURLOPT_ENCODING] = '';

@@ -4,6 +4,7 @@ CHANGELOG
 0.12.0
 -------------------
 
+* CA certificate directories now use cURL's `CURLOPT_CAPATH` option.
 * Added `@throws` tags for the exceptions that `Client`, the `Request`
   interface, and `RequestFactory::request()` can throw. This includes the
   `RuntimeException` for a cURL setup failure.

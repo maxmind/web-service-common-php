@@ -359,6 +359,48 @@ class ClientTest extends TestCase
         }
     }
 
+    public function testPharCaBundleIsReused(): void
+    {
+        $archive = tempnam(sys_get_temp_dir(), 'ca-bundle-');
+        unlink($archive);
+        $archive .= '.tar';
+        $phar = new \PharData($archive);
+        $phar->addFile(CaBundle::getBundledCaBundlePath(), 'ca.pem');
+        $previous = getenv('SSL_CERT_FILE');
+        putenv('SSL_CERT_FILE=phar://' . $archive . '/ca.pem');
+        CaBundle::reset();
+        $bundles = [];
+        $request = $this->createMock(Request::class);
+        $request->method('get')->willReturn([200, 'application/json', '{}']);
+        $factory = $this->createMock(RequestFactory::class);
+        $factory->method('request')->willReturnCallback(
+            static function (string $url, array $options) use (&$bundles, $request): Request {
+                $bundles[] = $options['caBundle'];
+
+                return $request;
+            }
+        );
+
+        try {
+            for ($i = 0; $i < 2; ++$i) {
+                $client = new Client(1, 'key', ['httpRequestFactory' => $factory]);
+                $client->get('TestService', '/test');
+            }
+            $this->assertCount(2, $bundles);
+            $this->assertSame($bundles[0], $bundles[1]);
+            $this->assertFileEquals(CaBundle::getBundledCaBundlePath(), $bundles[0]);
+            $this->assertNotFalse(realpath($bundles[0]));
+        } finally {
+            if ($previous === false) {
+                putenv('SSL_CERT_FILE');
+            } else {
+                putenv('SSL_CERT_FILE=' . $previous);
+            }
+            CaBundle::reset();
+            unlink($archive);
+        }
+    }
+
     public function testGetInsufficientFunds(): void
     {
         $this->expectException(InsufficientFundsException::class);

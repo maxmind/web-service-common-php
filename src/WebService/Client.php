@@ -37,6 +37,9 @@ class Client
     private readonly string $userAgent;
     private readonly int $accountId;
 
+    /** @var array<string, string> */
+    private static array $pharCaBundles = [];
+
     /**
      * @param int                  $accountId  your MaxMind account ID
      * @param string               $licenseKey your MaxMind license key
@@ -490,34 +493,50 @@ class Client
         // Check if the cert is inside a phar. If so, we need to copy the cert
         // to a temp file so that curl can see it.
         if (str_starts_with($cert, 'phar://')) {
-            $tempDir = sys_get_temp_dir();
-            $newCert = tempnam($tempDir, 'geoip2-');
-            if ($newCert === false) {
-                throw new \RuntimeException(
-                    "Unable to create temporary file in $tempDir"
-                );
-            }
-            if (!copy($cert, $newCert)) {
-                throw new \RuntimeException(
-                    "Could not copy $cert to $newCert: "
-                    . var_export(error_get_last(), true)
-                );
-            }
-
-            // We use a shutdown function rather than the destructor as the
-            // destructor isn't called on a fatal error such as an uncaught
-            // exception.
-            register_shutdown_function(
-                static function () use ($newCert) {
-                    unlink($newCert);
-                }
-            );
-            $cert = $newCert;
+            $cert = $this->extractCaBundle($cert);
         }
         if (!file_exists($cert)) {
             throw new \RuntimeException("CA cert does not exist at $cert");
         }
 
         return $cert;
+    }
+
+    /**
+     * @throws \RuntimeException if the CA bundle cannot be copied out of the archive
+     */
+    private function extractCaBundle(string $cert): string
+    {
+        if (isset(self::$pharCaBundles[$cert]) && is_file(self::$pharCaBundles[$cert])) {
+            return self::$pharCaBundles[$cert];
+        }
+
+        $tempDir = sys_get_temp_dir();
+        $newCert = tempnam($tempDir, 'geoip2-');
+        if ($newCert === false) {
+            throw new \RuntimeException("Unable to create temporary file in $tempDir");
+        }
+        if (!copy($cert, $newCert)) {
+            $error = error_get_last();
+            unlink($newCert);
+
+            throw new \RuntimeException(
+                "Could not copy $cert to $newCert: " . var_export($error, true)
+            );
+        }
+
+        if (!isset(self::$pharCaBundles[$cert])) {
+            register_shutdown_function(
+                static function () use ($cert) {
+                    $path = self::$pharCaBundles[$cert];
+                    if (is_file($path)) {
+                        unlink($path);
+                    }
+                }
+            );
+        }
+        self::$pharCaBundles[$cert] = $newCert;
+
+        return $newCert;
     }
 }

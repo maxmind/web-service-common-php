@@ -31,6 +31,8 @@ if ! git ls-remote origin &>/dev/null; then
 fi
 
 check_command php
+# composer.phar is managed by mise (see mise.toml)
+check_command composer.phar
 
 # Check that we're not on the main branch
 current_branch=$(git branch --show-current)
@@ -81,8 +83,7 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-php composer.phar self-update
-php composer.phar update
+composer.phar update
 
 ./vendor/bin/phpunit
 

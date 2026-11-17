@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-0.12.0
+0.12.0 (2026-11-17)
 -------------------
 
 * `Client` now throws `WebServiceException` for cURL and CA bundle setup

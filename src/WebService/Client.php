@@ -21,6 +21,8 @@ use MaxMind\WebService\Http\RequestFactory;
  * that you are using.
  *
  * @internal
+ *
+ * @final
  */
 class Client
 {

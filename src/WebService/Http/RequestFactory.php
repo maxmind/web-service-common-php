@@ -8,6 +8,8 @@ namespace MaxMind\WebService\Http;
  * Class RequestFactory.
  *
  * @internal
+ *
+ * @final
  */
 class RequestFactory
 {

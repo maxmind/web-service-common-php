@@ -17,6 +17,17 @@ CHANGELOG
   interface, and `RequestFactory::request()` can throw. This includes the
   `WebServiceException` for a client setup failure and `RuntimeException`
   from `RequestFactory::request()` if a cURL handle cannot be initialized.
+* These classes are now marked `@final`. They will be `final` in the next
+  major version. Static analyzers such as PHPStan report a class that extends
+  them.
+  * `MaxMind\Exception\AuthenticationException`
+  * `MaxMind\Exception\InsufficientFundsException`
+  * `MaxMind\Exception\InvalidInputException`
+  * `MaxMind\Exception\IpAddressNotFoundException`
+  * `MaxMind\Exception\PermissionRequiredException`
+  * The internal classes `MaxMind\WebService\Client`,
+    `MaxMind\WebService\Http\CurlRequest`, and
+    `MaxMind\WebService\Http\RequestFactory`
 
 0.11.1 (2026-01-13)
 -------------------

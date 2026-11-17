@@ -10,6 +10,8 @@ use MaxMind\Exception\HttpException;
  * This class is for internal use only. Semantic versioning does not not apply.
  *
  * @internal
+ *
+ * @final
  */
 class CurlRequest implements Request
 {

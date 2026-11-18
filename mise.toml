@@ -1,8 +1,20 @@
 [settings]
 lockfile = true
+disable_backends = [
+    "asdf",
+    "vfox",
+]
 
 [tools]
+"github:composer/composer" = "latest"
 lychee = "latest"
+
+[hooks]
+enter = "mise install --quiet"
+
+[[watch_files]]
+patterns = ["mise.toml", "mise.lock"]
+run = "mise install --quiet"
 
 [tasks.check-links]
 description = "Check links with lychee"

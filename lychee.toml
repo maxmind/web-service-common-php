@@ -5,7 +5,7 @@
 #   lychee './**/*.md' './src/**/*.php' './composer.json'
 
 # Include URL fragments in checks
-include_fragments = true
+include_fragments = "anchor-only"
 
 # Don't allow any redirects, so links that have moved are surfaced and updated
 # to their canonical destination.

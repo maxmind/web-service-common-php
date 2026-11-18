@@ -6,6 +6,8 @@ namespace MaxMind\Exception;
 
 /**
  * Thrown when the account is out of credits.
+ *
+ * @final
  */
 class InsufficientFundsException extends InvalidRequestException
 {
